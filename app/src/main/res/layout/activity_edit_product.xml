@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.ProductDetailsActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/editProductDetailImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true" />
+
+        <EditText
+            android:id="@+id/editProductDetailName"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editProductDetailImage"
+            android:padding="16dp"
+            android:textColor="@color/primaryText" />
+
+        <EditText
+            android:id="@+id/editProductDetailDescription"
+            style="@style/TextAppearance.AppCompat.Headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editProductDetailName"
+            android:padding="16dp"
+            android:textColor="@color/primaryText" />
+
+        <EditText
+            android:id="@+id/editProductDetailPrice"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editProductDetailDescription"
+            android:inputType="numberDecimal"
+            android:padding="16dp"
+            android:textColor="@color/secondaryText" />
+
+        <EditText
+            android:id="@+id/editProductDetailStock"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/editProductDetailPrice"
+            android:inputType="numberDecimal"
+            android:padding="16dp"
+            android:textColor="@color/secondaryText" />
+
+        <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btnEditProduct"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_below="@id/editProductDetailStock"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:layout_marginTop="30dp"
+            android:background="@color/colorPrimaryLight"
+            android:text="@string/stringSave" />
+
+    </RelativeLayout>
+</ScrollView>

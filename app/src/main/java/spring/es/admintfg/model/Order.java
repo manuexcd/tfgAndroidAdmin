@@ -1,9 +1,9 @@
-package spring.es.admintfg;
+package spring.es.admintfg.model;
 
 import com.google.gson.Gson;
 
-import java.util.Collection;
 import java.sql.Date;
+import java.util.Collection;
 
 /**
  * Created by manuexcd on 7/07/17.

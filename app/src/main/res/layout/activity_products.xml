@@ -4,10 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="spring.es.admintfg.activity.UsersActivity">
+    tools:context="spring.es.admintfg.activity.ProductsActivity">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/usersRecyclerView"
+        android:id="@+id/productsRecyclerView"
         android:scrollbars="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

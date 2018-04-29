@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <EditText
+        android:id="@+id/inputUser"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:ems="10"
+        android:hint="@string/stringUserPlaceholder"
+        android:inputType="textPersonName" />
+
+    <android.support.v7.widget.AppCompatImageView
+        android:id="@+id/iconUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@id/inputUser"
+        android:layout_toStartOf="@id/inputUser"
+        android:src="@drawable/ic_account_circle_black_24dp" />
+
+    <EditText
+        android:id="@+id/inputPassword"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/inputUser"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:ems="10"
+        android:hint="@string/stringPasswordPlaceholder"
+        android:inputType="textPassword" />
+
+    <android.support.v7.widget.AppCompatCheckBox
+        android:id="@+id/checkboxUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@id/inputPassword"
+        android:layout_below="@id/inputPassword" />
+
+    <android.support.v7.widget.AppCompatTextView
+        android:id="@+id/labelRememberUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/checkboxUser"
+        android:layout_alignBottom="@+id/checkboxUser"
+        android:layout_toEndOf="@+id/checkboxUser"
+        android:text="@string/stringRememberUsername" />
+
+    <android.support.v7.widget.AppCompatButton
+        android:id="@+id/btnLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="30dp"
+        android:layout_below="@id/labelRememberUser"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="30dp"
+        android:background="@color/colorPrimaryLight"
+        android:text="@string/stringButtonLogin" />
+
+</RelativeLayout>

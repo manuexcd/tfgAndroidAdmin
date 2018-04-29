@@ -1,4 +1,4 @@
-package spring.es.admintfg;
+package spring.es.admintfg.model;
 
 import com.google.gson.Gson;
 
@@ -11,11 +11,13 @@ public class Product {
     private String name;
     private String description;
     private double price;
-    private int stockAvailable;
+    private int stockAvaiable;
+    private Image productImage;
 
-    public static User fromJson(String s) {
-        return new Gson().fromJson(s, User.class);
+    public static Product fromJson(String s) {
+        return new Gson().fromJson(s, Product.class);
     }
+
     public String toJson() {
         return new Gson().toJson(this);
     }
@@ -23,12 +25,13 @@ public class Product {
     public Product() {
     }
 
-    public Product(String name, String description, double price, int stockAvailable) {
+    public Product(String name, String description, double price, int stockAvaiable, Image productImage) {
         super();
         this.setName(name);
         this.setDescription(description);
         this.setPrice(price);
-        this.setStockAvailable(stockAvailable);
+        this.setStockAvaiable(stockAvaiable);
+        this.setProductImage(productImage);
     }
 
     public long getId() {
@@ -63,21 +66,29 @@ public class Product {
         this.price = price;
     }
 
-    public int getStockAvailable() {
-        return stockAvailable;
+    public int getStockAvaiable() {
+        return stockAvaiable;
     }
 
-    public void setStockAvailable(int stockAvailable) {
-        this.stockAvailable = stockAvailable;
+    public void setStockAvaiable(int stockAvaiable) {
+        this.stockAvaiable = stockAvaiable;
     }
 
     public void updateStock(int stock) {
-        this.stockAvailable -= stock;
+        this.stockAvaiable -= stock;
+    }
+
+    public Image getProductImage() {
+        return this.productImage;
+    }
+
+    public void setProductImage(Image productImage) {
+        this.productImage = productImage;
     }
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getName() + ". Stock available: " + this.getStockAvailable() + ".\n");
+        sb.append(this.getName() + ". Stock avaiable: " + this.getStockAvaiable() + ".\n");
         sb.append(this.getPrice() + " €\n");
         sb.append(this.getDescription());
 

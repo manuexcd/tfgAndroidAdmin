@@ -1,4 +1,4 @@
-package spring.es.admintfg;
+package spring.es.admintfg.model;
 
 import com.google.gson.Gson;
 
@@ -17,10 +17,12 @@ public class User {
     private String phone;
     private String email;
     private Collection<Order> orders;
+    private Image userImage;
 
     public static User fromJson(String s) {
         return new Gson().fromJson(s, User.class);
     }
+
     public String toJson() {
         return new Gson().toJson(this);
     }
@@ -29,7 +31,7 @@ public class User {
 
     }
 
-    public User(String name, String surname, String address, String phone, String email, Collection<Order> orders) {
+    public User(String name, String surname, String address, String phone, String email, Collection<Order> orders, Image userImage) {
         super();
         this.setName(name);
         this.setSurname(surname);
@@ -37,6 +39,7 @@ public class User {
         this.setPhone(phone);
         this.setEmail(email);
         this.setOrders(orders);
+        this.setUserImage(userImage);
     }
 
     public long getId() {
@@ -93,6 +96,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public Image getUserImage() {
+        return this.userImage;
+    }
+
+    public void setUserImage(Image userImage) {
+        this.userImage = userImage;
     }
 
     public String toString() {

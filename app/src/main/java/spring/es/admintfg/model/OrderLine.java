@@ -1,4 +1,4 @@
-package spring.es.admintfg;
+package spring.es.admintfg.model;
 
 import com.google.gson.Gson;
 
