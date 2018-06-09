@@ -29,8 +29,8 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/productName"
             android:padding="8dp"
-            android:inputType="numberDecimal"
             android:textColor="@color/secondaryText" />
 
     </RelativeLayout>
+
 </android.support.v7.widget.CardView>

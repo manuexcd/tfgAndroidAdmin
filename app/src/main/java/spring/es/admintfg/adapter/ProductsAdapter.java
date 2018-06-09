@@ -2,6 +2,7 @@ package spring.es.admintfg.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,15 +31,20 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     }
 
     @Override
-    public ProductsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    @NonNull
+    public ProductsAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.list_products, parent, false));
     }
 
     @Override
-    public void onBindViewHolder(ProductsAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ProductsAdapter.ViewHolder holder, int position) {
         Product currentProduct = products.get(position);
         holder.bindTo(currentProduct);
         GlideApp.with(context).load(currentProduct.getProductImage().getUrl()).into(holder.productImage);
+    }
+
+    public void setProducts(ArrayList<Product> products) {
+        this.products = products;
     }
 
     @Override
@@ -67,6 +73,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             productName = itemView.findViewById(R.id.productName);
             productPrice = itemView.findViewById(R.id.productPrice);
             productImage = itemView.findViewById(R.id.productImage);
+
             itemView.setOnClickListener(this);
         }
 

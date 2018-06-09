@@ -32,7 +32,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                //Gson gson = new Gson();
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
                 Product product = gson.fromJson(new String(responseBody), Product.class);
                 GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(productDetailImage);

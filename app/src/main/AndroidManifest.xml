@@ -3,6 +3,8 @@
     package="spring.es.admintfg">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
 
     <application
         android:allowBackup="true"
@@ -17,10 +19,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.UsersActivity" />
-        <activity android:name=".activity.ProductsActivity" />
         <activity android:name=".activity.ProductDetailsActivity" />
-        <activity android:name=".activity.EditProductActivity"></activity>
+        <activity android:name=".activity.EditProductActivity" />
+        <activity android:name=".activity.MainActivity" />
+        <activity android:name=".activity.UserDetailsActivity" />
+        <activity android:name=".activity.NewProductActivity"></activity>
     </application>
 
 </manifest>

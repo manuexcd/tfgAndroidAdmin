@@ -1,67 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     tools:context=".activity.ProductDetailsActivity">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content">
+
 
         <ImageView
             android:id="@+id/productDetailImage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:adjustViewBounds="true" />
+            android:layout_width="400dp"
+            android:layout_height="224dp"
+            android:adjustViewBounds="true"
+            android:contentDescription="@string/content_description_product_image"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:layout_conversion_absoluteHeight="0dp"
+            tools:layout_conversion_absoluteWidth="411dp" />
 
         <TextView
             android:id="@+id/productDetailName"
             style="@style/TextAppearance.AppCompat.Headline"
-            android:layout_width="wrap_content"
+            android:layout_width="383dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/productDetailImage"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:padding="16dp"
-            android:textColor="@color/primaryText" />
+            android:textColor="@color/primaryText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productDetailImage"
+            tools:layout_conversion_absoluteHeight="64dp"
+            tools:layout_conversion_absoluteWidth="32dp" />
 
         <TextView
             android:id="@+id/productDetailDescription"
             style="@style/TextAppearance.AppCompat.Headline"
-            android:layout_width="wrap_content"
+            android:layout_width="384dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/productDetailName"
+            android:layout_marginTop="8dp"
             android:padding="16dp"
-            android:textColor="@color/primaryText" />
+            android:textColor="@color/primaryText"
+            app:layout_constraintStart_toStartOf="@+id/productDetailName"
+            app:layout_constraintTop_toBottomOf="@+id/productDetailName"
+            tools:layout_conversion_absoluteHeight="64dp"
+            tools:layout_conversion_absoluteWidth="32dp" />
 
         <TextView
             android:id="@+id/productDetailPrice"
             style="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/productDetailDescription"
-            android:inputType="numberDecimal"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:padding="16dp"
-            android:textColor="@color/secondaryText" />
+            android:textColor="@color/secondaryText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productDetailDescription"
+            tools:layout_conversion_absoluteHeight="53dp"
+            tools:layout_conversion_absoluteWidth="32dp" />
 
         <TextView
             android:id="@+id/productDetailStock"
             style="@style/TextAppearance.AppCompat.Subhead"
-            android:layout_width="wrap_content"
+            android:layout_width="64dp"
             android:layout_height="wrap_content"
-            android:layout_below="@id/productDetailPrice"
-            android:inputType="numberDecimal"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:padding="16dp"
-            android:textColor="@color/secondaryText" />
+            android:textColor="@color/secondaryText"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/productDetailPrice"
+            tools:layout_conversion_absoluteHeight="53dp"
+            tools:layout_conversion_absoluteWidth="32dp" />
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_margin="16dp"
-            android:src="@drawable/ic_account_circle_black_24dp" />
+            android:src="@drawable/ic_edit_black_24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_conversion_absoluteHeight="40dp"
+            tools:layout_conversion_absoluteWidth="40dp" />
 
-    </RelativeLayout>
+    </android.support.constraint.ConstraintLayout>
 </ScrollView>

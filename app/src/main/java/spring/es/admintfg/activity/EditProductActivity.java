@@ -28,7 +28,6 @@ public class EditProductActivity extends AppCompatActivity {
     private EditText editProductDetailDescription;
     private EditText editProductDetailPrice;
     private EditText editProductDetailStock;
-    private Button btnSave;
 
     public void getEditProductDetails() {
         AsyncHttpClient client = new AsyncHttpClient();
@@ -36,7 +35,6 @@ public class EditProductActivity extends AppCompatActivity {
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                //Gson gson = new Gson();
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
                 Product product = gson.fromJson(new String(responseBody), Product.class);
                 GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(editProductDetailImage);
@@ -97,7 +95,7 @@ public class EditProductActivity extends AppCompatActivity {
 
         getEditProductDetails();
 
-        btnSave = findViewById(R.id.btnEditProduct);
+        Button btnSave = findViewById(R.id.btnEditProduct);
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
