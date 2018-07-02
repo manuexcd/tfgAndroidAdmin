@@ -24,8 +24,9 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         TabLayout tabLayout = findViewById(R.id.tabs);
-        tabLayout.addTab(tabLayout.newTab().setText("Products"));
-        tabLayout.addTab(tabLayout.newTab().setText("Users"));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.stringProducts));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.stringUsers));
+        tabLayout.addTab(tabLayout.newTab().setText(R.string.stringOrders));
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         final ViewPager viewPager = findViewById(R.id.viewpager);

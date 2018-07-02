@@ -4,6 +4,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import spring.es.admintfg.fragment.OrdersFragment;
 import spring.es.admintfg.fragment.ProductsFragment;
 import spring.es.admintfg.fragment.UsersFragment;
 
@@ -23,6 +24,8 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
                 return new ProductsFragment();
             case 1:
                 return new UsersFragment();
+            case 2:
+                return new OrdersFragment();
             default:
                 return null;
         }

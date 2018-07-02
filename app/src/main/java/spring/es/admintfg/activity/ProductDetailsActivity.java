@@ -6,6 +6,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
@@ -25,6 +26,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private TextView productDetailDescription;
     private TextView productDetailPrice;
     private TextView productDetailStock;
+    private Switch productVisible;
 
     public void getProductDetails() {
         AsyncHttpClient client = new AsyncHttpClient();
@@ -37,8 +39,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(productDetailImage);
                 productDetailName.setText(product.getName());
                 productDetailDescription.setText(product.getDescription());
-                productDetailPrice.setText(String.valueOf(product.getPrice()));
-                productDetailStock.setText(String.valueOf(product.getStockAvaiable()));
+                productDetailPrice.setText(String.valueOf(product.getPrice()).concat(" ").concat(Constants.EURO));
+                productDetailStock.setText(String.valueOf(product.getStockAvaiable()).concat(" uds"));
+                productVisible.setChecked(product.isVisible());
             }
 
             @Override
@@ -58,6 +61,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         productDetailDescription = findViewById(R.id.productDetailDescription);
         productDetailPrice = findViewById(R.id.productDetailPrice);
         productDetailStock = findViewById(R.id.productDetailStock);
+        productVisible = findViewById(R.id.productVisible);
 
         getProductDetails();
 

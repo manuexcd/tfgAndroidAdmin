@@ -41,7 +41,7 @@ public class ProductsFragment extends Fragment {
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
                 Product[] products = gson.fromJson(new String(responseBody), Product[].class);
                 productsArray = new ArrayList<>(Arrays.asList(products));
                 mAdapter.setProducts(productsArray);

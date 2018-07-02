@@ -7,9 +7,12 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -32,6 +35,7 @@ public class UsersFragment extends Fragment {
     private static ArrayList<User> usersArray;
     private UsersAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private EditText editTextSearchUser;
 
     public void getUsers() {
         AsyncHttpClient client = new AsyncHttpClient();
@@ -39,7 +43,29 @@ public class UsersFragment extends Fragment {
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                User[] users = gson.fromJson(new String(responseBody), User[].class);
+                usersArray = new ArrayList<>(Arrays.asList(users));
+                mAdapter.setUsers(usersArray);
+                mAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+                editTextSearchUser.setHint(String.valueOf(usersArray.size()).concat(" contactos."));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void getUsersByParam(String param) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + "search/" + param;
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
                 User[] users = gson.fromJson(new String(responseBody), User[].class);
                 usersArray = new ArrayList<>(Arrays.asList(users));
                 mAdapter.setUsers(usersArray);
@@ -49,7 +75,7 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getContext(), "Error", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -67,8 +93,9 @@ public class UsersFragment extends Fragment {
         getUsers();
 
         usersRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(view.getContext(), usersRecyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
+                new RecyclerItemClickListener(view.getContext(), usersRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
                         User currentUser = usersArray.get(position);
 
                         Intent detailIntent = new Intent(view.getContext(), UserDetailsActivity.class);
@@ -76,7 +103,8 @@ public class UsersFragment extends Fragment {
                         view.getContext().startActivity(detailIntent);
                     }
 
-                    @Override public void onLongItemClick(View view, int position) {
+                    @Override
+                    public void onLongItemClick(View view, int position) {
                         // do whatever
                     }
                 })
@@ -92,6 +120,28 @@ public class UsersFragment extends Fragment {
                     }
                 }
         );
+
+        editTextSearchUser = view.findViewById(R.id.editTextSearchUser);
+
+        editTextSearchUser.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().equals(""))
+                    getUsersByParam(s.toString());
+                else
+                    getUsers();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         return view;
     }

@@ -12,6 +12,7 @@ public class Product {
     private String description;
     private double price;
     private int stockAvaiable;
+    private boolean isVisible;
     private Image productImage;
 
     public static Product fromJson(String s) {
@@ -76,6 +77,14 @@ public class Product {
 
     public void updateStock(int stock) {
         this.stockAvaiable -= stock;
+    }
+
+    public boolean isVisible() {
+        return isVisible;
+    }
+
+    public void setVisible(boolean isVisible) {
+        this.isVisible = isVisible;
     }
 
     public Image getProductImage() {

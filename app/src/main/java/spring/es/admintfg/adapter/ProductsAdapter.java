@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.R;
 import spring.es.admintfg.activity.ProductDetailsActivity;
@@ -80,7 +81,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         void bindTo(Product currentProduct) {
             //Populate the textviews with data
             productName.setText(currentProduct.getName());
-            productPrice.setText(String.valueOf(currentProduct.getPrice()));
+            productPrice.setText(String.valueOf(currentProduct.getPrice()).concat(" ").concat(Constants.EURO));
         }
 
         @Override

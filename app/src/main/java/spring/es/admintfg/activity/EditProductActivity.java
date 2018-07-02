@@ -28,6 +28,7 @@ public class EditProductActivity extends AppCompatActivity {
     private EditText editProductDetailDescription;
     private EditText editProductDetailPrice;
     private EditText editProductDetailStock;
+    private Image productImage;
 
     public void getEditProductDetails() {
         AsyncHttpClient client = new AsyncHttpClient();
@@ -40,8 +41,9 @@ public class EditProductActivity extends AppCompatActivity {
                 GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(editProductDetailImage);
                 editProductDetailName.setText(product.getName());
                 editProductDetailDescription.setText(product.getDescription());
-                editProductDetailPrice.setText(String.valueOf(product.getPrice()) + "€");
-                editProductDetailStock.setText(String.valueOf(product.getStockAvaiable()) + " uds");
+                editProductDetailPrice.setText(String.valueOf(product.getPrice()).concat(Constants.EURO));
+                editProductDetailStock.setText(String.valueOf(product.getStockAvaiable()).concat(" uds"));
+                productImage = product.getProductImage();
             }
 
             @Override
@@ -56,12 +58,12 @@ public class EditProductActivity extends AppCompatActivity {
         String productId = getIntent().getStringExtra("productId");
         String url = Constants.IP_ADDRESS + "products/" + productId;
         Product productUpdated = new Product();
+        productUpdated.setProductImage(productImage);
         productUpdated.setId(Long.parseLong(productId));
         productUpdated.setName(editProductDetailName.getText().toString());
         productUpdated.setDescription(editProductDetailDescription.getText().toString());
         productUpdated.setPrice(Double.parseDouble(editProductDetailPrice.getText().toString().replace("€", "")));
         productUpdated.setStockAvaiable(Integer.parseInt(editProductDetailStock.getText().toString().replace(" uds", "")));
-        productUpdated.setProductImage(new Image());
 
         Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
         StringEntity stringProduct = new StringEntity(gson.toJson(productUpdated, Product.class), "UTF-8");

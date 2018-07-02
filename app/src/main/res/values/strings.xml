@@ -11,9 +11,15 @@
     <string name="stringOrders">Pedidos</string>
     <string name="stringMobile">Móvil</string>
     <string name="title_activity_new_product">NewProductActivity</string>
-    <string name="content_description_product_image">Imagen del producto</string>
+    <string name="productVisible">Mostrar producto</string>
+    <string name="stringOrderInProgress">En progreso</string>
+    <string name="stringOrderInDelivery">En reparto</string>
+
     <string name="placeholder_product_name">Nombre</string>
     <string name="placeholder_product_description">Descripción</string>
     <string name="placeholder_product_price">Precio</string>
     <string name="placeholder_product_stock">Stock</string>
+
+    <string name="content_description_product_image">Imagen del producto</string>
+
 </resources>

@@ -106,6 +106,10 @@ public class User {
         this.userImage = userImage;
     }
 
+    public String getFullName() {
+        return this.name.concat(" ").concat(this.surname);
+    }
+
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(this.getName() + " " + this.getSurname() + ".\n");

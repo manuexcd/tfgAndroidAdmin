@@ -10,15 +10,19 @@ import java.util.Collection;
  */
 
 public class Order {
+    private enum OrderStatus {RECEIVED, IN_PROGRESS, IN_DELIVERY, DELIVERED}
+
     private long id;
     private double totalPrice;
     private Date date;
+    private OrderStatus orderStatus;
     private Collection<OrderLine> orderLines;
     private User user;
 
     public static Order fromJson(String s) {
         return new Gson().fromJson(s, Order.class);
     }
+
     public String toJson() {
         return new Gson().toJson(this);
     }
@@ -72,6 +76,14 @@ public class Order {
 
     public User getUser() {
         return this.user;
+    }
+
+    public OrderStatus getOrderStatus() {
+        return this.orderStatus;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
     public void updatePrice() {
