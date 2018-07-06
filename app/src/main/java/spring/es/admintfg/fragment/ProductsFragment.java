@@ -9,9 +9,15 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -34,10 +40,55 @@ public class ProductsFragment extends Fragment {
     private ProductsAdapter mAdapter;
     private ArrayList<Product> productsArray;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private EditText editTextSearchProduct;
 
     public void getProducts() {
         AsyncHttpClient client = new AsyncHttpClient();
-        String url = Constants.IP_ADDRESS + "products";
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS;
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                Product[] products = gson.fromJson(new String(responseBody), Product[].class);
+                productsArray = new ArrayList<>(Arrays.asList(products));
+                mAdapter.setProducts(productsArray);
+                mAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+                editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" productos."));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
+    }
+
+    public void getProductsOrderBy(String param) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + param;
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                Product[] products = gson.fromJson(new String(responseBody), Product[].class);
+                productsArray = new ArrayList<>(Arrays.asList(products));
+                mAdapter.setProducts(productsArray);
+                mAdapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+                editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" productos."));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
+    }
+
+    public void getProductsByParam(String param) {
+        AsyncHttpClient client = new AsyncHttpClient();
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + "search/" + param;
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -84,7 +135,51 @@ public class ProductsFragment extends Fragment {
         mAdapter = new ProductsAdapter(productsArray, view.getContext());
         productsRecyclerView.setAdapter(mAdapter);
 
-        getProducts();
+        editTextSearchProduct = view.findViewById(R.id.editTextSearchProduct);
+
+        editTextSearchProduct.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (!s.toString().equals(""))
+                    getProductsByParam(s.toString());
+                else
+                    getProducts();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        Spinner spinner = view.findViewById(R.id.spinnerOrderProducts);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(view.getContext(), R.array.order_by_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position == 0)
+                    getProductsOrderBy("name");
+                else if(position == 1)
+                    getProductsOrderBy("pricedesc");
+                else if(position == 2)
+                    getProductsOrderBy("price");
+                else if(position == 3)
+                    getProductsOrderBy("stock");
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                getProducts();
+            }
+        });
 
         ItemTouchHelper productTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override

@@ -2,7 +2,7 @@ package spring.es.admintfg.model;
 
 import com.google.gson.Gson;
 
-import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Collection;
 
 /**
@@ -14,7 +14,7 @@ public class Order {
 
     private long id;
     private double totalPrice;
-    private Date date;
+    private Timestamp date;
     private OrderStatus orderStatus;
     private Collection<OrderLine> orderLines;
     private User user;
@@ -31,7 +31,7 @@ public class Order {
 
     }
 
-    public Order(Date date, User user) {
+    public Order(Timestamp date, User user) {
         super();
         this.setDate(date);
         this.setTotalPrice(0);
@@ -62,11 +62,11 @@ public class Order {
         this.totalPrice = totalPrice;
     }
 
-    public Date getDate() {
+    public Timestamp getDate() {
         return date;
     }
 
-    public void setDate(Date date) {
+    public void setDate(Timestamp date) {
         this.date = date;
     }
 

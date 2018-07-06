@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="order_by_array">
+        <item>Nombre (A-Z)</item>
+        <item>Precio: mayor a menor</item>
+        <item>Precio: menor a mayor</item>
+        <item>Stock disponible</item>
+    </string-array>
+</resources>

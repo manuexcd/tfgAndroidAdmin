@@ -57,7 +57,7 @@ public class OrdersFragment extends Fragment {
         });
     }
 
-    public void getOrdersByParam(String param) {
+    /*public void getOrdersByParam(String param) {
         AsyncHttpClient client = new AsyncHttpClient();
         String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + "param/" + Long.valueOf(param);
         client.get(url, new AsyncHttpResponseHandler() {
@@ -76,7 +76,7 @@ public class OrdersFragment extends Fragment {
                 Toast.makeText(getContext(), "Error", Toast.LENGTH_LONG).show();
             }
         });
-    }
+    }*/
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -92,8 +92,7 @@ public class OrdersFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if(!s.toString().equals(""))
-                    getOrdersByParam(s.toString());
+
             }
 
             @Override
@@ -111,8 +110,9 @@ public class OrdersFragment extends Fragment {
         getOrders();
 
         ordersRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(view.getContext(), ordersRecyclerView ,new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override public void onItemClick(View view, int position) {
+                new RecyclerItemClickListener(view.getContext(), ordersRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View view, int position) {
                         Order currentOrder = ordersArray.get(position);
 
                         Intent detailIntent = new Intent(view.getContext(), OrderDetailsActivity.class);
@@ -120,7 +120,8 @@ public class OrdersFragment extends Fragment {
                         view.getContext().startActivity(detailIntent);
                     }
 
-                    @Override public void onLongItemClick(View view, int position) {
+                    @Override
+                    public void onLongItemClick(View view, int position) {
                         // do whatever
                     }
                 })
