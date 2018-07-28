@@ -18,6 +18,7 @@ public class User {
     private String email;
     private Collection<Order> orders;
     private Image userImage;
+    private String password;
 
     public static User fromJson(String s) {
         return new Gson().fromJson(s, User.class);
@@ -50,11 +51,7 @@ public class User {
         this.id = id;
     }
 
-    public Collection<Order> getOrders() {
-        return this.orders;
-    }
-
-    public void setOrders(Collection<Order> orders) {
+    private void setOrders(Collection<Order> orders) {
         this.orders = orders;
     }
 
@@ -110,13 +107,15 @@ public class User {
         return this.name.concat(" ").concat(this.surname);
     }
 
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(this.getName() + " " + this.getSurname() + ".\n");
-        sb.append(this.getAddress() + ".\n");
-        sb.append(this.getEmail() + "\n");
-        sb.append(this.getPhone());
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-        return sb.toString();
+    public String getPassword() {
+        return this.password;
+    }
+
+    public String toString() {
+        return this.getName() + " " + this.getSurname() + ".\n" + this.getAddress() + ".\n" + this.getEmail() + "\n" + this.getPhone();
     }
 }

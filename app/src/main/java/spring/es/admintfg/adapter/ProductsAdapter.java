@@ -1,5 +1,6 @@
 package spring.es.admintfg.adapter;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -87,9 +88,11 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         @Override
         public void onClick(View v) {
             Product currentProduct = products.get(getAdapterPosition());
+            Intent intent = ((Activity) context).getIntent();
 
             Intent detailIntent = new Intent(context, ProductDetailsActivity.class);
             detailIntent.putExtra("productId", String.valueOf(currentProduct.getId()));
+            detailIntent.putExtra("token", intent.getStringExtra("token"));
             context.startActivity(detailIntent);
         }
     }

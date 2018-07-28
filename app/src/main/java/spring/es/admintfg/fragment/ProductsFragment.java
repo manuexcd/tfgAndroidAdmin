@@ -1,10 +1,10 @@
 package spring.es.admintfg.fragment;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -28,11 +28,13 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
-import spring.es.admintfg.activity.NewProductActivity;
+import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
+import spring.es.admintfg.activity.NewProductActivity;
 import spring.es.admintfg.adapter.ProductsAdapter;
 import spring.es.admintfg.model.Product;
 
@@ -43,30 +45,32 @@ public class ProductsFragment extends Fragment {
     private EditText editTextSearchProduct;
 
     public void getProducts() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS;
+        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                Product[] products = gson.fromJson(new String(responseBody), Product[].class);
-                productsArray = new ArrayList<>(Arrays.asList(products));
+                Product[] users = gson.fromJson(new String(responseBody), Product[].class);
+                productsArray = new ArrayList<>(Arrays.asList(users));
                 mAdapter.setProducts(productsArray);
                 mAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
-                editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" productos."));
+                editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" contactos."));
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
 
     public void getProductsOrderBy(String param) {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + param;
+        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -81,14 +85,15 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
 
     public void getProductsByParam(String param) {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + "search/" + param;
+        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -102,14 +107,15 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
 
     public void deleteProduct(Long id) {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + "products/" + id;
+        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
         client.delete(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -145,10 +151,12 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().equals(""))
-                    getProductsByParam(s.toString());
-                else
+                if (!s.toString().equals("")) {
                     getProducts();
+                    //getProductsByParam(s.toString());
+                } else {
+                    getProducts();
+                }
             }
 
             @Override
@@ -165,19 +173,23 @@ public class ProductsFragment extends Fragment {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if(position == 0)
+                if (position == 0)
                     getProductsOrderBy("name");
-                else if(position == 1)
+                else if (position == 1)
                     getProductsOrderBy("pricedesc");
-                else if(position == 2)
+                else if (position == 2)
                     getProductsOrderBy("price");
-                else if(position == 3)
+                else if (position == 3)
                     getProductsOrderBy("stock");
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                getProducts();
+                try {
+                    getProducts();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -203,7 +215,11 @@ public class ProductsFragment extends Fragment {
                 Long productId = productsArray.get(viewHolder.getAdapterPosition()).getId();
                 productsArray.remove(viewHolder.getAdapterPosition());
                 mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                deleteProduct(productId);
+                try {
+                    deleteProduct(productId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
@@ -225,6 +241,7 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent changeActivity = new Intent(view.getContext(), NewProductActivity.class);
+                changeActivity.putExtra("token", Objects.requireNonNull(getActivity()).getIntent().getStringExtra("token"));
                 startActivity(changeActivity);
             }
         });

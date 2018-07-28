@@ -77,7 +77,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
 
         void bindTo(Order currentOrder) {
             //Populate the textviews with data
-            orderId.setText(new String("Order ").concat(String.valueOf(currentOrder.getId())));
+            orderId.setText(("Order ").concat(String.valueOf(currentOrder.getId())));
             orderDate.setText(currentOrder.getDate().toString());
             orderPrice.setText(String.valueOf(new DecimalFormat("#.##").format(currentOrder.getTotalPrice())).concat(" €"));
             orderUser.setText(currentOrder.getUser().getName().concat(" ").concat(currentOrder.getUser().getSurname()));

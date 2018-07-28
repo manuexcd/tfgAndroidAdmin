@@ -18,6 +18,7 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
+import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.model.Image;
 import spring.es.admintfg.model.Product;
@@ -31,8 +32,9 @@ public class EditProductActivity extends AppCompatActivity {
     private Image productImage;
 
     public void getEditProductDetails() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + "products/" + getIntent().getStringExtra("productId");
+        client.addHeader("Authorization", getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -54,7 +56,8 @@ public class EditProductActivity extends AppCompatActivity {
     }
 
     public void updateProductDetails() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
+        client.addHeader("Authorization", getIntent().getStringExtra("token"));
         String productId = getIntent().getStringExtra("productId");
         String url = Constants.IP_ADDRESS + "products/" + productId;
         Product productUpdated = new Product();
@@ -73,6 +76,7 @@ public class EditProductActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Intent changeActivity = new Intent(EditProductActivity.this, ProductDetailsActivity.class);
                 changeActivity.putExtra("productId", getIntent().getStringExtra("productId"));
+                changeActivity.putExtra("token", getIntent().getStringExtra("token"));
                 startActivity(changeActivity);
                 Toast.makeText(getApplicationContext(), "Product updated successfully", Toast.LENGTH_LONG).show();
             }

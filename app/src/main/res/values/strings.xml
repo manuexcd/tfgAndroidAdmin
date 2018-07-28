@@ -20,6 +20,14 @@
     <string name="placeholder_product_price">Precio</string>
     <string name="placeholder_product_stock">Stock</string>
 
+    <string name="placeholder_user_name">Nombre</string>
+    <string name="placeholder_user_surname">Apellidos</string>
+    <string name="placeholder_user_email">Email</string>
+    <string name="placeholder_user_phone">Teléfono</string>
+    <string name="placeholder_user_address">Dirección</string>
+    <string name="placeholder_user_password">Contraseña</string>
+    <string name="placeholder_user_password_repeat">Repetir contraseña</string>
+
     <string name="content_description_product_image">Imagen del producto</string>
 
 </resources>

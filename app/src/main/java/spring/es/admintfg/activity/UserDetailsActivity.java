@@ -26,6 +26,7 @@ import cz.msebera.android.httpclient.Header;
 import de.cketti.mailto.EmailIntentBuilder;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
+import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.OrdersAdapter;
 import spring.es.admintfg.model.Order;
@@ -41,8 +42,9 @@ public class UserDetailsActivity extends AppCompatActivity {
     private OrdersAdapter mAdapter;
 
     public void getUserDetails() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_USERS + getIntent().getStringExtra("userId");
+        client.addHeader("Authorization", getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -66,8 +68,9 @@ public class UserDetailsActivity extends AppCompatActivity {
     }
 
     public void getOrdersByUser(long userId) {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + "user/" + userId;
+        client.addHeader("Authorization", getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {

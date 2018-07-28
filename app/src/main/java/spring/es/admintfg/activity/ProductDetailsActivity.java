@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,6 +18,7 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
+import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.model.Product;
 
@@ -29,8 +31,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private Switch productVisible;
 
     public void getProductDetails() {
-        AsyncHttpClient client = new AsyncHttpClient();
-        String url = Constants.IP_ADDRESS + "products/" + getIntent().getStringExtra("productId");
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + getIntent().getStringExtra("productId");
+        client.addHeader("Authorization", getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -46,7 +49,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -71,6 +74,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent changeActivity = new Intent(ProductDetailsActivity.this, EditProductActivity.class);
                 changeActivity.putExtra("productId", getIntent().getStringExtra("productId"));
+                changeActivity.putExtra("token", getIntent().getStringExtra("token"));
                 startActivity(changeActivity);
             }
         });

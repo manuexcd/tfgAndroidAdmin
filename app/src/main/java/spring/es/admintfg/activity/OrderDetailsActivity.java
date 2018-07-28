@@ -17,6 +17,7 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.OrderLinesAdapter;
 import spring.es.admintfg.model.Order;
@@ -31,8 +32,9 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView orderDetailPrice;
 
     public void getOrderDetails() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + getIntent().getStringExtra("orderId");
+        client.addHeader("Authorization", getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {

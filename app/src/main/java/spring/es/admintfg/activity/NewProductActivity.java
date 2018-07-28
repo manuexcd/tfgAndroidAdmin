@@ -1,8 +1,8 @@
 package spring.es.admintfg.activity;
 
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -19,8 +19,8 @@ import java.io.UnsupportedEncodingException;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
-import spring.es.admintfg.fragment.ProductsFragment;
 import spring.es.admintfg.model.Image;
 import spring.es.admintfg.model.Product;
 
@@ -32,8 +32,9 @@ public class NewProductActivity extends AppCompatActivity {
     private EditText newProductStock;
 
     private void updateProductDetails() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + "products";
+        client.addHeader("Authorization", getIntent().getStringExtra("token"));
         Product newProduct = new Product();
         newProduct.setName(newProductName.getText().toString());
         newProduct.setDescription(newProductDescription.getText().toString());
@@ -57,6 +58,7 @@ public class NewProductActivity extends AppCompatActivity {
                 }
                 Product product = gson.fromJson(productString, Product.class);
                 changeActivity.putExtra("productId", product.getId());
+                changeActivity.putExtra("token", getIntent().getStringExtra("token"));
                 startActivity(changeActivity);
                 Toast.makeText(getApplicationContext(), "Producto añadido correctamente", Toast.LENGTH_LONG).show();
             }
@@ -82,8 +84,9 @@ public class NewProductActivity extends AppCompatActivity {
         btnSaveNewProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (validateForm())
+                if (validateForm()) {
                     updateProductDetails();
+                }
             }
         });
     }

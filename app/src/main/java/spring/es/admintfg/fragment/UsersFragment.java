@@ -22,9 +22,11 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.RecyclerItemClickListener;
 import spring.es.admintfg.activity.UserDetailsActivity;
@@ -38,12 +40,13 @@ public class UsersFragment extends Fragment {
     private EditText editTextSearchUser;
 
     public void getUsers() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + "users";
+        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").setPrettyPrinting().create();
                 User[] users = gson.fromJson(new String(responseBody), User[].class);
                 usersArray = new ArrayList<>(Arrays.asList(users));
                 mAdapter.setUsers(usersArray);
@@ -60,8 +63,9 @@ public class UsersFragment extends Fragment {
     }
 
     public void getUsersByParam(String param) {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_USERS + "search/" + param;
+        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -100,6 +104,7 @@ public class UsersFragment extends Fragment {
 
                         Intent detailIntent = new Intent(view.getContext(), UserDetailsActivity.class);
                         detailIntent.putExtra("userId", String.valueOf(currentUser.getId()));
+                        detailIntent.putExtra("token", Objects.requireNonNull(getActivity()).getIntent().getStringExtra("token"));
                         view.getContext().startActivity(detailIntent);
                     }
 
@@ -131,10 +136,11 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().equals(""))
+                if (!s.toString().equals("")) {
                     getUsersByParam(s.toString());
-                else
+                } else {
                     getUsers();
+                }
             }
 
             @Override
