@@ -2,6 +2,7 @@
     <string name="app_name">AdminTFG</string>
     <string name="stringRememberUsername">Recordar usuario</string>
     <string name="stringButtonLogin">Entrar</string>
+    <string name="stringButtonRegister">Registrarse</string>
     <string name="stringUserPlaceholder">Usuario</string>
     <string name="stringPasswordPlaceholder">Contraseña</string>
     <string name="stringSave">Guardar</string>

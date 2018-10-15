@@ -6,11 +6,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONObject;
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -57,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -76,6 +78,19 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 try {
                     login();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        Button btnRegister = findViewById(R.id.btnRegister);
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                    Intent changeActivity = new Intent(LoginActivity.this, RegisterActivity.class);
+                    startActivity(changeActivity);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

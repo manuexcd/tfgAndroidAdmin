@@ -38,7 +38,8 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     public void onBindViewHolder(@NonNull UsersAdapter.ViewHolder holder, int position) {
         User currentUser = users.get(position);
         holder.bindTo(currentUser);
-        GlideApp.with(context).load(currentUser.getUserImage().getUrl()).dontAnimate().into(holder.userImage);
+        if(currentUser.getUserImage() != null)
+            GlideApp.with(context).load(currentUser.getUserImage().getUrl()).dontAnimate().into(holder.userImage);
     }
 
     public void setUsers(ArrayList<User> users) {

@@ -1,4 +1,4 @@
-package spring.es.admintfg;
+package spring.es.admintfg.activity;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -14,6 +14,9 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.StringEntity;
+import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyAsyncHttpClient;
+import spring.es.admintfg.R;
 import spring.es.admintfg.model.User;
 
 public class RegisterActivity extends AppCompatActivity {
@@ -26,7 +29,7 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText registerUserPassword;
 
     public void registerUser() {
-        AsyncHttpClient client = new AsyncHttpClient();
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_USERS + "registration";
 
         User user = new User();

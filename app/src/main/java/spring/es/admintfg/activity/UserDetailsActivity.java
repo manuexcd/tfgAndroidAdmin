@@ -50,7 +50,8 @@ public class UserDetailsActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
                 User user = gson.fromJson(new String(responseBody), User.class);
-                GlideApp.with(getApplicationContext()).load(user.getUserImage().getUrl()).into(userDetailImage);
+                if(user.getUserImage() != null)
+                    GlideApp.with(getApplicationContext()).load(user.getUserImage().getUrl()).into(userDetailImage);
                 toolbar.setTitle(user.getFullName());
                 toolbar.setTitleTextColor(getColor(R.color.white));
                 setSupportActionBar(toolbar);
