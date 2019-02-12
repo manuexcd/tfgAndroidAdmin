@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -17,6 +18,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -26,38 +28,57 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.MyAsyncHttpClient;
+import spring.es.admintfg.PaginationScrollListener;
 import spring.es.admintfg.R;
 import spring.es.admintfg.activity.NewProductActivity;
 import spring.es.admintfg.adapter.ProductsAdapter;
-import spring.es.admintfg.model.Product;
+import spring.es.admintfg.dto.ProductDTO;
+import spring.es.admintfg.pagination.ProductsPage;
 
 public class ProductsFragment extends Fragment {
+    private static final int PAGE_START = 0;
     private ProductsAdapter mAdapter;
-    private ArrayList<Product> productsArray;
+    private ArrayList<ProductDTO> productsArray;
     private SwipeRefreshLayout swipeRefreshLayout;
     private EditText editTextSearchProduct;
+    private ProgressBar progressBar;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private int TOTAL_PAGES;
+    private int currentPage = PAGE_START;
 
-    public void getProducts() {
+    public void setProductsList(byte[] responseBody) {
+        Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
+        ProductsPage productsPage = gson.fromJson(new String(responseBody), ProductsPage.class);
+        productsArray = new ArrayList<>(productsPage.getContent());
+        TOTAL_PAGES = productsPage.getTotalPages();
+        if (productsPage.getFirst())
+            mAdapter.setProducts(productsArray);
+        else if (!isLastPage)
+            mAdapter.getProducts().addAll(productsArray);
+        mAdapter.notifyDataSetChanged();
+        swipeRefreshLayout.setRefreshing(false);
+        editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" productos."));
+        TOTAL_PAGES = productsPage.getTotalPages();
+        isLoading = false;
+        progressBar.setVisibility(View.GONE);
+        isLastPage = productsPage.getLast();
+    }
+
+    public void getProducts(final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS;
-        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + Constants.PARAM_PAGE + page;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                Product[] users = gson.fromJson(new String(responseBody), Product[].class);
-                productsArray = new ArrayList<>(Arrays.asList(users));
-                mAdapter.setProducts(productsArray);
-                mAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
-                editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" contactos."));
+                setProductsList(responseBody);
             }
 
             @Override
@@ -67,20 +88,14 @@ public class ProductsFragment extends Fragment {
         });
     }
 
-    public void getProductsOrderBy(String param) {
+    public void getProductsOrderBy(String param, final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + param;
-        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + param + Constants.PARAM_PAGE + page;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                Product[] products = gson.fromJson(new String(responseBody), Product[].class);
-                productsArray = new ArrayList<>(Arrays.asList(products));
-                mAdapter.setProducts(productsArray);
-                mAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
-                editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" productos."));
+                setProductsList(responseBody);
             }
 
             @Override
@@ -90,19 +105,14 @@ public class ProductsFragment extends Fragment {
         });
     }
 
-    public void getProductsByParam(String param) {
+    public void getProductsByParam(String param, final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + "search/" + param;
-        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + Constants.PATH_SEARCH + param + Constants.PARAM_PAGE + page;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                Product[] products = gson.fromJson(new String(responseBody), Product[].class);
-                productsArray = new ArrayList<>(Arrays.asList(products));
-                mAdapter.setProducts(productsArray);
-                mAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
+                setProductsList(responseBody);
             }
 
             @Override
@@ -114,19 +124,19 @@ public class ProductsFragment extends Fragment {
 
     public void deleteProduct(Long id) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + "products/" + id;
-        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + id;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
         client.delete(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getContext(), "Producto eliminado correctamente", Toast.LENGTH_LONG).show();
-                getProducts();
+                getProducts(PAGE_START);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 Toast.makeText(getContext(), "No se puede eliminar el producto", Toast.LENGTH_LONG).show();
-                getProducts();
+                //getProducts(PAGE_START);
             }
         });
     }
@@ -136,7 +146,10 @@ public class ProductsFragment extends Fragment {
         View view = inflater.inflate(R.layout.activity_products, container, false);
 
         RecyclerView productsRecyclerView = view.findViewById(R.id.productsRecyclerView);
-        productsRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        progressBar = view.findViewById(R.id.main_progress);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(view.getContext());
+        productsRecyclerView.setLayoutManager(layoutManager);
+        productsRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         mAdapter = new ProductsAdapter(productsArray, view.getContext());
         productsRecyclerView.setAdapter(mAdapter);
@@ -151,11 +164,10 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!s.toString().equals("")) {
-                    getProducts();
-                    //getProductsByParam(s.toString());
+                if (!s.toString().equals(Constants.EMPTY_STRING)) {
+                    getProductsByParam(s.toString(), PAGE_START);
                 } else {
-                    getProducts();
+                    getProducts(PAGE_START);
                 }
             }
 
@@ -174,19 +186,19 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if (position == 0)
-                    getProductsOrderBy("name");
+                    getProductsOrderBy(Constants.ORDER_NAME, PAGE_START);
                 else if (position == 1)
-                    getProductsOrderBy("pricedesc");
+                    getProductsOrderBy(Constants.ORDER_PRICE_DESC, PAGE_START);
                 else if (position == 2)
-                    getProductsOrderBy("price");
+                    getProductsOrderBy(Constants.ORDER_PRICE_ASC, PAGE_START);
                 else if (position == 3)
-                    getProductsOrderBy("stock");
+                    getProductsOrderBy(Constants.ORDER_STOCK, PAGE_START);
             }
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 try {
-                    getProducts();
+                    getProducts(PAGE_START);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -195,14 +207,14 @@ public class ProductsFragment extends Fragment {
 
         ItemTouchHelper productTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
-            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
                 int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
                 return makeMovementFlags(dragFlags, swipeFlags);
             }
 
             @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
                 int from = viewHolder.getAdapterPosition();
                 int to = target.getAdapterPosition();
                 Collections.swap(productsArray, from, to);
@@ -211,7 +223,7 @@ public class ProductsFragment extends Fragment {
             }
 
             @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
                 Long productId = productsArray.get(viewHolder.getAdapterPosition()).getId();
                 productsArray.remove(viewHolder.getAdapterPosition());
                 mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
@@ -225,13 +237,39 @@ public class ProductsFragment extends Fragment {
 
         productTouchHelper.attachToRecyclerView(productsRecyclerView);
 
+        productsRecyclerView.addOnScrollListener(new PaginationScrollListener(layoutManager) {
+            @Override
+            protected void loadMoreItems() {
+                isLoading = true;
+                currentPage += 1;
+                getProducts(currentPage);
+            }
+
+            @Override
+            public int getTotalPageCount() {
+                return TOTAL_PAGES;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return isLastPage;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return isLoading;
+            }
+        });
+
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshProducts);
 
         swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
-                        getProducts();
+                        isLastPage = false;
+                        currentPage = 0;
+                        getProducts(PAGE_START);
                     }
                 }
         );
@@ -241,7 +279,7 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent changeActivity = new Intent(view.getContext(), NewProductActivity.class);
-                changeActivity.putExtra("token", Objects.requireNonNull(getActivity()).getIntent().getStringExtra("token"));
+                changeActivity.putExtra(Constants.TOKEN, Objects.requireNonNull(getActivity()).getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
             }
         });

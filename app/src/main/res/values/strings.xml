@@ -15,6 +15,7 @@
     <string name="productVisible">Mostrar producto</string>
     <string name="stringOrderInProgress">En progreso</string>
     <string name="stringOrderInDelivery">En reparto</string>
+    <string name="stringAdmin">Admin</string>
 
     <string name="placeholder_product_name">Nombre</string>
     <string name="placeholder_product_description">Descripción</string>

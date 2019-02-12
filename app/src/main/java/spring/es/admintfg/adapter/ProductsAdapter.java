@@ -12,22 +12,23 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.R;
 import spring.es.admintfg.activity.ProductDetailsActivity;
-import spring.es.admintfg.model.Product;
+import spring.es.admintfg.dto.ProductDTO;
 
 /**
  * Created by manue on 07/04/2018.
  */
 
 public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHolder> {
-    private ArrayList<Product> products;
+    private ArrayList<ProductDTO> products;
     private Context context;
 
-    public ProductsAdapter(ArrayList<Product> products, Context context) {
+    public ProductsAdapter(ArrayList<ProductDTO> products, Context context) {
         this.products = products;
         this.context = context;
     }
@@ -40,13 +41,18 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
 
     @Override
     public void onBindViewHolder(@NonNull ProductsAdapter.ViewHolder holder, int position) {
-        Product currentProduct = products.get(position);
+        ProductDTO currentProduct = products.get(position);
         holder.bindTo(currentProduct);
-        GlideApp.with(context).load(currentProduct.getProductImage().getUrl()).into(holder.productImage);
+        if(currentProduct.getProductImage() != null)
+            GlideApp.with(context).load(currentProduct.getProductImage().getUrl()).into(holder.productImage);
     }
 
-    public void setProducts(ArrayList<Product> products) {
+    public void setProducts(ArrayList<ProductDTO> products) {
         this.products = products;
+    }
+
+    public List<ProductDTO> getProducts() {
+        return this.products;
     }
 
     @Override
@@ -79,7 +85,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             itemView.setOnClickListener(this);
         }
 
-        void bindTo(Product currentProduct) {
+        void bindTo(ProductDTO currentProduct) {
             //Populate the textviews with data
             productName.setText(currentProduct.getName());
             productPrice.setText(String.valueOf(currentProduct.getPrice()).concat(" ").concat(Constants.EURO));
@@ -87,7 +93,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
 
         @Override
         public void onClick(View v) {
-            Product currentProduct = products.get(getAdapterPosition());
+            ProductDTO currentProduct = products.get(getAdapterPosition());
             Intent intent = ((Activity) context).getIntent();
 
             Intent detailIntent = new Intent(context, ProductDetailsActivity.class);

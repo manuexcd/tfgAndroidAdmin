@@ -12,13 +12,14 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import org.json.JSONObject;
-import org.mindrot.jbcrypt.BCrypt;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.message.BasicHeader;
 import cz.msebera.android.httpclient.protocol.HTTP;
@@ -42,17 +43,17 @@ public class LoginActivity extends AppCompatActivity {
         jsonParams.put("email", user.getText().toString());
         jsonParams.put("password", password.getText().toString());
 
-        StringEntity stringBody = new StringEntity(jsonParams.toString(), "UTF-8");
-        stringBody.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, "application/json"));
+        StringEntity stringBody = new StringEntity(jsonParams.toString(), Charset.defaultCharset());
+        stringBody.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()));
 
-        client.post(getApplicationContext(), url, stringBody, "application/json", new AsyncHttpResponseHandler() {
+        client.post(getApplicationContext(), url, stringBody, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 List<Header> listHeaders = new ArrayList<>(Arrays.asList(headers));
                 Intent changeActivity = new Intent(LoginActivity.this, MainActivity.class);
                 for (Header header : listHeaders) {
-                    if (header.getName().equals("Authorization"))
-                        changeActivity.putExtra("token", header.getValue());
+                    if (header.getName().equals(Constants.HEADER_AUTHORIZATION))
+                        changeActivity.putExtra(Constants.TOKEN, header.getValue());
                 }
                 startActivity(changeActivity);
             }

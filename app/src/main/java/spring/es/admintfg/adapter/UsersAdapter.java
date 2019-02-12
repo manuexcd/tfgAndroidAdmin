@@ -9,21 +9,22 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.R;
-import spring.es.admintfg.model.User;
+import spring.es.admintfg.dto.UserDTO;
 
 /**
  * Created by manue on 07/04/2018.
  */
 
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> {
-    private ArrayList<User> users;
+    private ArrayList<UserDTO> users;
     private Context context;
 
-    public UsersAdapter(ArrayList<User> users, Context context) {
+    public UsersAdapter(ArrayList<UserDTO> users, Context context) {
         this.users = users;
         this.context = context;
     }
@@ -36,14 +37,18 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(@NonNull UsersAdapter.ViewHolder holder, int position) {
-        User currentUser = users.get(position);
+        UserDTO currentUser = users.get(position);
         holder.bindTo(currentUser);
         if(currentUser.getUserImage() != null)
             GlideApp.with(context).load(currentUser.getUserImage().getUrl()).dontAnimate().into(holder.userImage);
     }
 
-    public void setUsers(ArrayList<User> users) {
+    public void setUsers(ArrayList<UserDTO> users) {
         this.users = users;
+    }
+
+    public List<UserDTO> getUsers() {
+        return this.users;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
             address = itemView.findViewById(R.id.address);
         }
 
-        void bindTo(User currentUser) {
+        void bindTo(UserDTO currentUser) {
             //Populate the textviews with data
             fullName.setText(currentUser.getName().concat(" ").concat(currentUser.getSurname()));
             address.setText(currentUser.getAddress());

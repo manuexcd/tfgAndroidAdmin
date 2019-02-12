@@ -20,7 +20,6 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import cz.msebera.android.httpclient.Header;
 import de.cketti.mailto.EmailIntentBuilder;
@@ -29,11 +28,12 @@ import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.OrdersAdapter;
-import spring.es.admintfg.model.Order;
+import spring.es.admintfg.dto.OrderDTO;
 import spring.es.admintfg.model.User;
+import spring.es.admintfg.pagination.OrdersPage;
 
 public class UserDetailsActivity extends AppCompatActivity {
-    private ArrayList<Order> ordersArray;
+    private ArrayList<OrderDTO> ordersArray;
     private ImageView userDetailImage;
     private TextView userDetailPhone;
     private TextView userDetailEmail;
@@ -76,8 +76,8 @@ public class UserDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-                Order[] orders = gson.fromJson(new String(responseBody), Order[].class);
-                ordersArray = new ArrayList<>(Arrays.asList(orders));
+                OrdersPage orders = gson.fromJson(new String(responseBody), OrdersPage.class);
+                ordersArray = new ArrayList<>(orders.getContent());
                 mAdapter.setOrders(ordersArray);
                 mAdapter.notifyDataSetChanged();
             }

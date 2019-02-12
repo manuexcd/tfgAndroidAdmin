@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.R;
-import spring.es.admintfg.model.Order;
 import spring.es.admintfg.model.OrderLine;
 
 /**

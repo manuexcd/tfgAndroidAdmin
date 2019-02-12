@@ -12,17 +12,17 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import spring.es.admintfg.R;
-import spring.es.admintfg.model.Order;
+import spring.es.admintfg.dto.OrderDTO;
 
 /**
  * Created by manue on 07/04/2018.
  */
 
 public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder> {
-    private ArrayList<Order> orders;
+    private ArrayList<OrderDTO> orders;
     private Context context;
 
-    public OrdersAdapter(ArrayList<Order> orders, Context context) {
+    public OrdersAdapter(ArrayList<OrderDTO> orders, Context context) {
         this.orders = orders;
         this.context = context;
     }
@@ -35,11 +35,11 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull OrdersAdapter.ViewHolder holder, int position) {
-        Order currentOrder = orders.get(position);
+        OrderDTO currentOrder = orders.get(position);
         holder.bindTo(currentOrder);
     }
 
-    public void setOrders(ArrayList<Order> orders) {
+    public void setOrders(ArrayList<OrderDTO> orders) {
         this.orders = orders;
     }
 
@@ -75,7 +75,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             orderStatus = itemView.findViewById(R.id.orderStatus);
         }
 
-        void bindTo(Order currentOrder) {
+        void bindTo(OrderDTO currentOrder) {
             //Populate the textviews with data
             orderId.setText(("Order ").concat(String.valueOf(currentOrder.getId())));
             orderDate.setText(currentOrder.getDate().toString());

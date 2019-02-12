@@ -21,7 +21,6 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
@@ -31,10 +30,11 @@ import spring.es.admintfg.R;
 import spring.es.admintfg.RecyclerItemClickListener;
 import spring.es.admintfg.activity.OrderDetailsActivity;
 import spring.es.admintfg.adapter.OrdersAdapter;
-import spring.es.admintfg.model.Order;
+import spring.es.admintfg.dto.OrderDTO;
+import spring.es.admintfg.pagination.OrdersPage;
 
 public class OrdersFragment extends Fragment {
-    private static ArrayList<Order> ordersArray;
+    private static ArrayList<OrderDTO> ordersArray;
     private OrdersAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
 
@@ -46,8 +46,8 @@ public class OrdersFragment extends Fragment {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                Order[] orders = gson.fromJson(new String(responseBody), Order[].class);
-                ordersArray = new ArrayList<>(Arrays.asList(orders));
+                OrdersPage orders = gson.fromJson(new String(responseBody), OrdersPage.class);
+                ordersArray = new ArrayList<>(orders.getContent());
                 mAdapter.setOrders(ordersArray);
                 mAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
@@ -117,7 +117,7 @@ public class OrdersFragment extends Fragment {
                 new RecyclerItemClickListener(view.getContext(), ordersRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        Order currentOrder = ordersArray.get(position);
+                        OrderDTO currentOrder = ordersArray.get(position);
 
                         Intent detailIntent = new Intent(view.getContext(), OrderDetailsActivity.class);
                         detailIntent.putExtra("orderId", String.valueOf(currentOrder.getId()));
