@@ -6,11 +6,14 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
+import spring.es.admintfg.Constants;
 import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.PagerAdapter;
 
 
 public class MainActivity extends AppCompatActivity {
+
+    private TabLayout tabLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,30 +23,39 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        TabLayout tabLayout = findViewById(R.id.tabs);
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.stringProducts));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.stringUsers));
-        tabLayout.addTab(tabLayout.newTab().setText(R.string.stringOrders));
-        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
+        tabLayout = findViewById(R.id.tabs);
+    }
 
-        final ViewPager viewPager = findViewById(R.id.viewpager);
-        final PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
-        viewPager.setAdapter(adapter);
-        viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
-        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener(){
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                viewPager.setCurrentItem(tab.getPosition());
-            }
+    @Override
+    protected void onStart() {
+        if (tabLayout.getTabCount() == 0) {
+            tabLayout.addTab(tabLayout.newTab().setText(R.string.stringProducts));
+            tabLayout.addTab(tabLayout.newTab().setText(R.string.stringOrders));
+            if (getIntent().getStringExtra(Constants.HEADER_ADMIN) != null && getIntent().getStringExtra(Constants.HEADER_ADMIN).equals(Constants.TRUE))
+                tabLayout.addTab(tabLayout.newTab().setText(R.string.stringUsers));
+            tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
+            final ViewPager viewPager = findViewById(R.id.viewpager);
+            final PagerAdapter adapter = new PagerAdapter(getSupportFragmentManager(), tabLayout.getTabCount());
+            viewPager.setAdapter(adapter);
+            viewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabLayout));
+            tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    viewPager.setCurrentItem(tab.getPosition());
+                }
 
-            }
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
 
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
+                }
 
-            }});
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
+        }
+        super.onStart();
     }
 }

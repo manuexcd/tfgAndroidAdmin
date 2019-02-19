@@ -5,6 +5,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -12,12 +13,17 @@ import com.google.gson.GsonBuilder;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
+import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
+
 import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
-import spring.es.admintfg.model.User;
+import spring.es.admintfg.dto.UserDTO;
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -27,23 +33,29 @@ public class RegisterActivity extends AppCompatActivity {
     private EditText registerUserPhone;
     private EditText registerUserAddress;
     private EditText registerUserPassword;
+    private Switch switchUserRole;
 
     public void registerUser() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + "registration";
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_SIGN_IN;
 
-        User user = new User();
+        UserDTO user = new UserDTO();
         user.setName(registerUserName.getText().toString());
         user.setSurname(registerUserSurname.getText().toString());
         user.setEmail(registerUserEmail.getText().toString());
         user.setPhone(registerUserPhone.getText().toString());
         user.setAddress(registerUserAddress.getText().toString());
         user.setPassword(registerUserPassword.getText().toString());
+        List<String> userRoles = new ArrayList<>();
+        userRoles.add(Constants.BASIC_ROLE);
+        if (switchUserRole.isChecked())
+            userRoles.add(Constants.ADMIN_ROLE);
+        user.setRoles(userRoles);
 
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-        StringEntity stringUser = new StringEntity(gson.toJson(user, User.class), "UTF-8");
+        Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
+        StringEntity stringUser = new StringEntity(gson.toJson(user, UserDTO.class), Charset.defaultCharset());
 
-        client.post(getApplicationContext(), url, stringUser, "application/json", new AsyncHttpResponseHandler() {
+        client.post(getApplicationContext(), url, stringUser, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), "Registro completado.", Toast.LENGTH_LONG).show();
@@ -67,13 +79,14 @@ public class RegisterActivity extends AppCompatActivity {
         registerUserPhone = findViewById(R.id.registerUserPhone);
         registerUserAddress = findViewById(R.id.registerUserAddress);
         registerUserPassword = findViewById(R.id.registerUserPassword);
+        switchUserRole = findViewById(R.id.switchUserRole);
         final EditText registerUserPasswordRepeat = findViewById(R.id.registerUserPasswordRepeat);
         Button btnSaveUser = findViewById(R.id.btnSaveUser);
 
         btnSaveUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(registerUserPassword.getText().toString().equals(registerUserPasswordRepeat.getText().toString()))
+                if (registerUserPassword.getText().toString().equals(registerUserPasswordRepeat.getText().toString()))
                     registerUser();
                 else {
                     registerUserPassword.setHighlightColor(getColor(R.color.red));

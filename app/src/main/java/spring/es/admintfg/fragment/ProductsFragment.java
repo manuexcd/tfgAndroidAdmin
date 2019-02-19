@@ -48,10 +48,12 @@ public class ProductsFragment extends Fragment {
     private SwipeRefreshLayout swipeRefreshLayout;
     private EditText editTextSearchProduct;
     private ProgressBar progressBar;
+    private FloatingActionButton fabNewProduct;
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private int TOTAL_PAGES;
     private int currentPage = PAGE_START;
+    private ItemTouchHelper productTouchHelper;
 
     public void setProductsList(byte[] responseBody) {
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -205,7 +207,7 @@ public class ProductsFragment extends Fragment {
             }
         });
 
-        ItemTouchHelper productTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
+        productTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
             @Override
             public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
                 int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
@@ -274,7 +276,7 @@ public class ProductsFragment extends Fragment {
                 }
         );
 
-        FloatingActionButton fabNewProduct = view.findViewById(R.id.fabNewProduct);
+        fabNewProduct = view.findViewById(R.id.fabNewProduct);
         fabNewProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -285,5 +287,13 @@ public class ProductsFragment extends Fragment {
         });
 
         return view;
+    }
+
+    public void onStart() {
+        if (Objects.requireNonNull(getActivity()).getIntent().getStringExtra(Constants.HEADER_ADMIN) != null && getActivity().getIntent().getStringExtra(Constants.HEADER_ADMIN).equals(Constants.FALSE)) {
+            fabNewProduct.hide();
+            productTouchHelper.attachToRecyclerView(null);
+        }
+        super.onStart();
     }
 }

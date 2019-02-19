@@ -9,7 +9,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,7 +30,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
     private TextView productDetailDescription;
     private TextView productDetailPrice;
     private TextView productDetailStock;
-    private Switch productVisible;
+    private FloatingActionButton fab;
+    //private Switch productVisible;
 
     public void getProductDetails() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
@@ -87,7 +87,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         getProductDetails();
 
-        FloatingActionButton fab = findViewById(R.id.fab);
+        fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -97,5 +97,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 startActivity(changeActivity);
             }
         });
+    }
+
+    protected void onStart() {
+        if (getIntent().getStringExtra(Constants.HEADER_ADMIN) != null && getIntent().getStringExtra(Constants.HEADER_ADMIN).equals(Constants.FALSE))
+            fab.hide();
+        super.onStart();
     }
 }

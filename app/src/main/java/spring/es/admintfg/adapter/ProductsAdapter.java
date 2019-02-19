@@ -43,16 +43,16 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     public void onBindViewHolder(@NonNull ProductsAdapter.ViewHolder holder, int position) {
         ProductDTO currentProduct = products.get(position);
         holder.bindTo(currentProduct);
-        if(currentProduct.getProductImage() != null)
+        if (currentProduct.getProductImage() != null)
             GlideApp.with(context).load(currentProduct.getProductImage().getUrl()).into(holder.productImage);
-    }
-
-    public void setProducts(ArrayList<ProductDTO> products) {
-        this.products = products;
     }
 
     public List<ProductDTO> getProducts() {
         return this.products;
+    }
+
+    public void setProducts(ArrayList<ProductDTO> products) {
+        this.products = products;
     }
 
     @Override
@@ -97,8 +97,9 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             Intent intent = ((Activity) context).getIntent();
 
             Intent detailIntent = new Intent(context, ProductDetailsActivity.class);
-            detailIntent.putExtra("productId", String.valueOf(currentProduct.getId()));
-            detailIntent.putExtra("token", intent.getStringExtra("token"));
+            detailIntent.putExtra(Constants.PRODUCT_ID, String.valueOf(currentProduct.getId()));
+            detailIntent.putExtra(Constants.TOKEN, intent.getStringExtra(Constants.TOKEN));
+            detailIntent.putExtra(Constants.HEADER_ADMIN, intent.getStringExtra(Constants.HEADER_ADMIN));
             context.startActivity(detailIntent);
         }
     }
