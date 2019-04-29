@@ -42,7 +42,7 @@ public class NewProductActivity extends AppCompatActivity {
         newProduct.setName(newProductName.getText().toString());
         newProduct.setDescription(newProductDescription.getText().toString());
         newProduct.setPrice(Double.valueOf(newProductPrice.getText().toString()));
-        newProduct.setStockAvaiable(Integer.valueOf(newProductStock.getText().toString()));
+        newProduct.setStockAvailable(Integer.valueOf(newProductStock.getText().toString()));
         newProduct.setProductImage(new Image());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -58,7 +58,7 @@ public class NewProductActivity extends AppCompatActivity {
                 changeActivity.putExtra(Constants.PRODUCT_ID, product.getId());
                 changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
-                Toast.makeText(getApplicationContext(), "Producto añadido correctamente", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductAdded), Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -74,7 +74,7 @@ public class NewProductActivity extends AppCompatActivity {
         setContentView(R.layout.activity_new_product);
 
         Toolbar newProductToolbar = findViewById(R.id.newProductToolbar);
-        newProductToolbar.setTitle("Nuevo producto");
+        newProductToolbar.setTitle(getResources().getString(R.string.stringNewProduct));
         newProductToolbar.setTitleMarginStart(100);
         newProductToolbar.setTitleTextColor(Color.WHITE);
 
@@ -107,19 +107,19 @@ public class NewProductActivity extends AppCompatActivity {
 
     private boolean validateForm() {
         if (TextUtils.isEmpty(newProductName.getText().toString().trim())) {
-            Toast.makeText(getApplicationContext(), "El nombre no puede estar vacío.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyName), Toast.LENGTH_LONG).show();
             return false;
         }
         if (TextUtils.isEmpty(newProductDescription.getText().toString().trim())) {
-            Toast.makeText(getApplicationContext(), "La descricpión no puede estar vacía.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyDescription), Toast.LENGTH_LONG).show();
             return false;
         }
         if (TextUtils.isEmpty(newProductPrice.getText().toString().trim())) {
-            Toast.makeText(getApplicationContext(), "El precio no puede estar vacío.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyPrice), Toast.LENGTH_LONG).show();
             return false;
         }
         if (TextUtils.isEmpty(newProductStock.getText().toString().trim())) {
-            Toast.makeText(getApplicationContext(), "El stock no puede estar vacío.", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyStock), Toast.LENGTH_LONG).show();
             return false;
         }
 

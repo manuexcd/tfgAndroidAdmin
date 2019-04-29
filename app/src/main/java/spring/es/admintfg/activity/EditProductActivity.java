@@ -52,7 +52,7 @@ public class EditProductActivity extends AppCompatActivity {
                 editProductDetailName.setText(product.getName());
                 editProductDetailDescription.setText(product.getDescription());
                 editProductDetailPrice.setText(String.valueOf(product.getPrice()).concat(Constants.EURO));
-                editProductDetailStock.setText(String.valueOf(product.getStockAvaiable()).concat(" uds"));
+                editProductDetailStock.setText(String.valueOf(product.getStockAvailable()).concat(" uds"));
                 productImage = product.getProductImage();
             }
 
@@ -74,7 +74,7 @@ public class EditProductActivity extends AppCompatActivity {
         productUpdated.setName(editProductDetailName.getText().toString());
         productUpdated.setDescription(editProductDetailDescription.getText().toString());
         productUpdated.setPrice(Double.parseDouble(editProductDetailPrice.getText().toString().replace(Constants.EURO, "")));
-        productUpdated.setStockAvaiable(Integer.parseInt(editProductDetailStock.getText().toString().replace(" uds", "")));
+        productUpdated.setStockAvailable(Integer.parseInt(editProductDetailStock.getText().toString().replace(" uds", "")));
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
         StringEntity stringProduct = new StringEntity(gson.toJson(productUpdated, Product.class), StandardCharsets.UTF_8);

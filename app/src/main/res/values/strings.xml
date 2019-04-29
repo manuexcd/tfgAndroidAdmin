@@ -15,7 +15,17 @@
     <string name="productVisible">Mostrar producto</string>
     <string name="stringOrderInProgress">En progreso</string>
     <string name="stringOrderInDelivery">En reparto</string>
+    <string name="stringOrderBuy">Comprar</string>
     <string name="stringAdmin">Admin</string>
+    <string name="stringRecommendedPrice">PVP</string>
+    <string name="stringStock">En stock</string>
+    <string name="stringNoStock">Sin stock</string>
+    <string name="stringProductAdded">Producto añadido correctamente</string>
+    <string name="stringNewProduct">Nuevo producto</string>
+    <string name="stringNoEmptyName">El nombre no puede estar vacío</string>
+    <string name="stringNoEmptyDescription">La descripción no puede estar vacía</string>
+    <string name="stringNoEmptyPrice">El precio no puede estar vacío</string>
+    <string name="stringNoEmptyStock">El stock no puede estar vacío</string>
 
     <string name="placeholder_product_name">Nombre</string>
     <string name="placeholder_product_description">Descripción</string>

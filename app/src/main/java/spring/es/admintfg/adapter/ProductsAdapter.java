@@ -100,6 +100,7 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             detailIntent.putExtra(Constants.PRODUCT_ID, String.valueOf(currentProduct.getId()));
             detailIntent.putExtra(Constants.TOKEN, intent.getStringExtra(Constants.TOKEN));
             detailIntent.putExtra(Constants.HEADER_ADMIN, intent.getStringExtra(Constants.HEADER_ADMIN));
+            detailIntent.putExtra(Constants.USER_ID, intent.getStringExtra(Constants.USER_ID));
             context.startActivity(detailIntent);
         }
     }

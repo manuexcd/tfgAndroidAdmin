@@ -29,6 +29,7 @@ import spring.es.admintfg.Constants;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.dto.UserDTO;
+import spring.es.admintfg.dto.UserLoginDTO;
 
 /**
  * Created by manue on 18/02/2018.
@@ -64,16 +65,17 @@ public class LoginActivity extends AppCompatActivity {
                     }
                 }
 
-                String urlDetails = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_EMAIL + user.getText().toString();
+                String urlDetails = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_EMAIL + user.getText().toString() + Constants.PATH_LOGIN_DETAILS;
                 AsyncHttpClient clientDetails = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
                 clientDetails.addHeader(Constants.HEADER_AUTHORIZATION, token);
                 clientDetails.get(urlDetails, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         Gson gsonDetails = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                        UserDTO userDetails = gsonDetails.fromJson(new String(responseBody), UserDTO.class);
+                        UserLoginDTO userDetails = gsonDetails.fromJson(new String(responseBody), UserLoginDTO.class);
                         isAdmin = userDetails.getRoles().contains(Constants.ADMIN_ROLE);
                         changeActivity.putExtra(Constants.HEADER_ADMIN, String.valueOf(isAdmin));
+                        changeActivity.putExtra(Constants.USER_ID, String.valueOf(userDetails.getId()));
                         startActivity(changeActivity);
                     }
 

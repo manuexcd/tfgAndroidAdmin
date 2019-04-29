@@ -1,5 +1,6 @@
 package spring.es.admintfg.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -59,6 +60,8 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), "Registro completado.", Toast.LENGTH_LONG).show();
+                Intent changeActivity = new Intent(RegisterActivity.this, LoginActivity.class);
+                startActivity(changeActivity);
             }
 
             @Override
@@ -90,7 +93,7 @@ public class RegisterActivity extends AppCompatActivity {
                     registerUser();
                 else {
                     registerUserPassword.setHighlightColor(getColor(R.color.red));
-                    Toast.makeText(getApplicationContext(), "Las constraseñas no coinciden.", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Las contraseñas no coinciden.", Toast.LENGTH_LONG).show();
                 }
 
             }

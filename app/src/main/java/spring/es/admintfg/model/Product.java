@@ -11,9 +11,21 @@ public class Product {
     private String name;
     private String description;
     private double price;
-    private int stockAvaiable;
+    private int stockAvailable;
     private boolean isVisible;
     private Image productImage;
+
+    public Product() {
+    }
+
+    public Product(String name, String description, double price, int stockAvailable, Image productImage) {
+        super();
+        this.setName(name);
+        this.setDescription(description);
+        this.setPrice(price);
+        this.setStockAvailable(stockAvailable);
+        this.setProductImage(productImage);
+    }
 
     public static Product fromJson(String s) {
         return new Gson().fromJson(s, Product.class);
@@ -21,18 +33,6 @@ public class Product {
 
     public String toJson() {
         return new Gson().toJson(this);
-    }
-
-    public Product() {
-    }
-
-    public Product(String name, String description, double price, int stockAvaiable, Image productImage) {
-        super();
-        this.setName(name);
-        this.setDescription(description);
-        this.setPrice(price);
-        this.setStockAvaiable(stockAvaiable);
-        this.setProductImage(productImage);
     }
 
     public long getId() {
@@ -67,16 +67,16 @@ public class Product {
         this.price = price;
     }
 
-    public int getStockAvaiable() {
-        return stockAvaiable;
+    public int getStockAvailable() {
+        return stockAvailable;
     }
 
-    public void setStockAvaiable(int stockAvaiable) {
-        this.stockAvaiable = stockAvaiable;
+    public void setStockAvailable(int stockAvailable) {
+        this.stockAvailable = stockAvailable;
     }
 
     public void updateStock(int stock) {
-        this.stockAvaiable -= stock;
+        this.stockAvailable -= stock;
     }
 
     public boolean isVisible() {
@@ -97,8 +97,8 @@ public class Product {
 
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(this.getName() + ". Stock avaiable: " + this.getStockAvaiable() + ".\n");
-        sb.append(this.getPrice() + " €\n");
+        sb.append(this.getName()).append(". Stock available: ").append(this.getStockAvailable()).append(".\n");
+        sb.append(this.getPrice()).append(" €\n");
         sb.append(this.getDescription());
 
         return sb.toString();

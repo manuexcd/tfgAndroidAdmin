@@ -1,5 +1,7 @@
 package spring.es.admintfg.dto;
 
+import com.google.gson.Gson;
+
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -9,63 +11,67 @@ import spring.es.admintfg.model.User;
 
 public class OrderDTO implements Serializable {
 
-	private enum OrderStatus {
-		RECEIVED, IN_PROGRESS, IN_DELIVERY, DELIVERED
-	}
+    private static final long serialVersionUID = 6892693125355139371L;
+    private long id;
+    private double totalPrice = 0;
+    private Timestamp date;
+    private String orderStatus;
+    private Collection<OrderLine> orderLines;
+    private User user;
 
-	private static final long serialVersionUID = 6892693125355139371L;
-	private long id;
-	private double totalPrice = 0;
-	private Timestamp date;
-	private OrderStatus orderStatus = OrderStatus.RECEIVED;
-	private Collection<OrderLine> orderLines;
-	private User user;
+    public static OrderDTO fromJson(String s) {
+        return new Gson().fromJson(s, OrderDTO.class);
+    }
 
-	public long getId() {
-		return id;
-	}
+    public String toJson() {
+        return new Gson().toJson(this);
+    }
 
-	public void setId(long id) {
-		this.id = id;
-	}
+    public long getId() {
+        return id;
+    }
 
-	public double getTotalPrice() {
-		return totalPrice;
-	}
+    public void setId(long id) {
+        this.id = id;
+    }
 
-	public void setTotalPrice(double totalPrice) {
-		this.totalPrice = totalPrice;
-	}
+    public double getTotalPrice() {
+        return totalPrice;
+    }
 
-	public Timestamp getDate() {
-		return date;
-	}
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
+    }
 
-	public void setDate(Timestamp date) {
-		this.date = date;
-	}
+    public Timestamp getDate() {
+        return date;
+    }
 
-	public OrderStatus getOrderStatus() {
-		return orderStatus;
-	}
+    public void setDate(Timestamp date) {
+        this.date = date;
+    }
 
-	public void setOrderStatus(OrderStatus orderStatus) {
-		this.orderStatus = orderStatus;
-	}
+    public String getOrderStatus() {
+        return orderStatus;
+    }
 
-	public Collection<OrderLine> getOrderLines() {
-		return orderLines;
-	}
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
 
-	public void setOrderLines(Collection<OrderLine> orderLines) {
-		this.orderLines = orderLines;
-	}
+    public Collection<OrderLine> getOrderLines() {
+        return orderLines;
+    }
 
-	public User getUser() {
-		return user;
-	}
+    public void setOrderLines(Collection<OrderLine> orderLines) {
+        this.orderLines = orderLines;
+    }
 
-	public void setUser(User user) {
-		this.user = user;
-	}
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
 }

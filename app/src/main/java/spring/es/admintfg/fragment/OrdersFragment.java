@@ -21,6 +21,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
@@ -31,6 +32,7 @@ import spring.es.admintfg.RecyclerItemClickListener;
 import spring.es.admintfg.activity.OrderDetailsActivity;
 import spring.es.admintfg.adapter.OrdersAdapter;
 import spring.es.admintfg.dto.OrderDTO;
+import spring.es.admintfg.model.Order;
 import spring.es.admintfg.pagination.OrdersPage;
 
 public class OrdersFragment extends Fragment {
@@ -41,14 +43,20 @@ public class OrdersFragment extends Fragment {
     public void getOrders() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS;
-        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+                Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
                 OrdersPage orders = gson.fromJson(new String(responseBody), OrdersPage.class);
                 ordersArray = new ArrayList<>(orders.getContent());
-                mAdapter.setOrders(ordersArray);
+                List<OrderDTO> ordersNotTemporal = new ArrayList<>();
+                for (OrderDTO order : ordersArray) {
+                    if (!order.getOrderStatus().equals(Constants.ORDER_STATUS_TEMPORAL)) {
+                        ordersNotTemporal.add(order);
+                    }
+                }
+                mAdapter.setOrders(new ArrayList<>(ordersNotTemporal));
                 mAdapter.notifyDataSetChanged();
                 swipeRefreshLayout.setRefreshing(false);
             }
@@ -120,8 +128,8 @@ public class OrdersFragment extends Fragment {
                         OrderDTO currentOrder = ordersArray.get(position);
 
                         Intent detailIntent = new Intent(view.getContext(), OrderDetailsActivity.class);
-                        detailIntent.putExtra("orderId", String.valueOf(currentOrder.getId()));
-                        detailIntent.putExtra("token", Objects.requireNonNull(getActivity()).getIntent().getStringExtra("token"));
+                        detailIntent.putExtra(Constants.ORDER_ID, String.valueOf(currentOrder.getId()));
+                        detailIntent.putExtra(Constants.TOKEN, Objects.requireNonNull(getActivity()).getIntent().getStringExtra(Constants.TOKEN));
                         view.getContext().startActivity(detailIntent);
                     }
 

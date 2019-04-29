@@ -1,21 +1,17 @@
 package spring.es.admintfg.model;
 
+import android.support.annotation.NonNull;
+
 import com.google.gson.Gson;
 
 import java.sql.Timestamp;
 import java.util.Collection;
 
-/**
- * Created by manuexcd on 7/07/17.
- */
-
 public class Order {
-    private enum OrderStatus {RECEIVED, IN_PROGRESS, IN_DELIVERY, DELIVERED}
-
     private long id;
     private double totalPrice;
     private Timestamp date;
-    private OrderStatus orderStatus;
+    private String orderStatus;
     private Collection<OrderLine> orderLines;
     private User user;
 
@@ -78,11 +74,11 @@ public class Order {
         return this.user;
     }
 
-    public OrderStatus getOrderStatus() {
+    public String getOrderStatus() {
         return this.orderStatus;
     }
 
-    public void setOrderStatus(OrderStatus orderStatus) {
+    public void setOrderStatus(String orderStatus) {
         this.orderStatus = orderStatus;
     }
 
@@ -94,11 +90,9 @@ public class Order {
         this.setTotalPrice(total);
     }
 
+    @NonNull
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("Order ID: " + this.getId() + ". Date: " + this.getDate().toString() + "\n");
-        sb.append(this.getOrderLines().toString());
-
-        return sb.toString();
+        return "Order ID: " + this.getId() + ". Date: " + this.getDate().toString() + "\n" +
+                this.getOrderLines().toString();
     }
 }
