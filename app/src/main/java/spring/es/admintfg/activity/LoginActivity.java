@@ -26,10 +26,10 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.message.BasicHeader;
 import cz.msebera.android.httpclient.protocol.HTTP;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.dto.UserDTO;
-import spring.es.admintfg.dto.UserLoginDTO;
 
 /**
  * Created by manue on 18/02/2018.
@@ -38,16 +38,16 @@ import spring.es.admintfg.dto.UserLoginDTO;
 public class LoginActivity extends AppCompatActivity {
     private EditText user;
     private EditText password;
-    private boolean isAdmin = false;
     private Intent changeActivity;
+    private MyApplication app;
 
     private void login() throws Exception {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_LOGIN;
 
         JSONObject jsonParams = new JSONObject();
-        jsonParams.put("email", user.getText().toString());
-        jsonParams.put("password", password.getText().toString());
+        jsonParams.put(Constants.EMAIL, user.getText().toString());
+        jsonParams.put(Constants.PASSWORD, password.getText().toString());
 
         StringEntity stringBody = new StringEntity(jsonParams.toString(), Charset.defaultCharset());
         stringBody.setContentType(new BasicHeader(HTTP.CONTENT_TYPE, ContentType.APPLICATION_JSON.getMimeType()));
@@ -57,30 +57,30 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 List<Header> listHeaders = new ArrayList<>(Arrays.asList(headers));
                 changeActivity = new Intent(LoginActivity.this, MainActivity.class);
-                String token = "";
                 for (Header header : listHeaders) {
-                    if (header.getName().equals(Constants.HEADER_AUTHORIZATION)) {
-                        token = header.getValue();
-                        changeActivity.putExtra(Constants.TOKEN, token);
-                    }
+                    if (header.getName().equals(Constants.HEADER_AUTHORIZATION))
+                        app.setToken(header.getValue());
+
                 }
 
-                String urlDetails = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_EMAIL + user.getText().toString() + Constants.PATH_LOGIN_DETAILS;
+                String urlDetails = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_EMAIL + user.getText().toString();
                 AsyncHttpClient clientDetails = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-                clientDetails.addHeader(Constants.HEADER_AUTHORIZATION, token);
+                clientDetails.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
                 clientDetails.get(urlDetails, new AsyncHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                         Gson gsonDetails = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                        UserLoginDTO userDetails = gsonDetails.fromJson(new String(responseBody), UserLoginDTO.class);
-                        isAdmin = userDetails.getRoles().contains(Constants.ADMIN_ROLE);
-                        changeActivity.putExtra(Constants.HEADER_ADMIN, String.valueOf(isAdmin));
-                        changeActivity.putExtra(Constants.USER_ID, String.valueOf(userDetails.getId()));
+                        UserDTO userDetails = gsonDetails.fromJson(new String(responseBody), UserDTO.class);
+                        app.setUserLogged(userDetails);
+                        app.setAdmin(userDetails.getRoles().contains(Constants.ADMIN_ROLE));
                         startActivity(changeActivity);
                     }
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                        String response = new String(responseBody);
+                        if(statusCode == 500 && response.contains("expired"))
+                            startActivity(new Intent(LoginActivity.this, LoginActivity.class));
                     }
                 });
             }
@@ -96,6 +96,8 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        app = (MyApplication) this.getApplication();
 
         user = findViewById(R.id.inputUser);
         password = findViewById(R.id.inputPassword);

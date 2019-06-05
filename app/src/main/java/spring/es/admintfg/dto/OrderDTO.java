@@ -1,23 +1,24 @@
 package spring.es.admintfg.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Collection;
-
-import spring.es.admintfg.model.OrderLine;
-import spring.es.admintfg.model.User;
+import java.util.List;
 
 public class OrderDTO implements Serializable {
 
     private static final long serialVersionUID = 6892693125355139371L;
     private long id;
-    private double totalPrice = 0;
+    private double totalPrice;
     private Timestamp date;
+    @JsonSerialize(using = CustomDateSerializer.class)
     private String orderStatus;
-    private Collection<OrderLine> orderLines;
-    private User user;
+    private List<OrderLineDTO> orderLines;
+
+    private UserDTO user;
 
     public static OrderDTO fromJson(String s) {
         return new Gson().fromJson(s, OrderDTO.class);
@@ -59,19 +60,19 @@ public class OrderDTO implements Serializable {
         this.orderStatus = orderStatus;
     }
 
-    public Collection<OrderLine> getOrderLines() {
+    public List<OrderLineDTO> getOrderLines() {
         return orderLines;
     }
 
-    public void setOrderLines(Collection<OrderLine> orderLines) {
+    public void setOrderLines(List<OrderLineDTO> orderLines) {
         this.orderLines = orderLines;
     }
 
-    public User getUser() {
+    public UserDTO getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(UserDTO user) {
         this.user = user;
     }
 }

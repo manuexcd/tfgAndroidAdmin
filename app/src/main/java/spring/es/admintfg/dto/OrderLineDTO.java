@@ -1,14 +1,8 @@
 package spring.es.admintfg.dto;
 
-import java.io.Serializable;
-
-import spring.es.admintfg.model.Order;
-import spring.es.admintfg.model.Product;
-
-public class OrderLineDTO implements Serializable {
-	private static final long serialVersionUID = 4745195410724554377L;
+public class OrderLineDTO {
 	private long id;
-	private Product product;
+	private ProductDTO product;
 	private int quantity;
 
 	public long getId() {
@@ -19,11 +13,11 @@ public class OrderLineDTO implements Serializable {
 		this.id = id;
 	}
 
-	public Product getProduct() {
+	public ProductDTO getProduct() {
 		return product;
 	}
 
-	public void setProduct(Product product) {
+	public void setProduct(ProductDTO product) {
 		this.product = product;
 	}
 
@@ -34,14 +28,4 @@ public class OrderLineDTO implements Serializable {
 	public void setQuantity(int quantity) {
 		this.quantity = quantity;
 	}
-
-	public Order getOrder() {
-		return order;
-	}
-
-	public void setOrder(Order order) {
-		this.order = order;
-	}
-
-	private Order order;
 }

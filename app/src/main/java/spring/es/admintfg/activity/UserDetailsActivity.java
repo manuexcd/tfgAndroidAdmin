@@ -12,6 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.gson.Gson;
@@ -25,11 +26,12 @@ import cz.msebera.android.httpclient.Header;
 import de.cketti.mailto.EmailIntentBuilder;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.OrdersAdapter;
 import spring.es.admintfg.dto.OrderDTO;
-import spring.es.admintfg.model.User;
+import spring.es.admintfg.dto.UserDTO;
 import spring.es.admintfg.pagination.OrdersPage;
 
 public class UserDetailsActivity extends AppCompatActivity {
@@ -40,19 +42,21 @@ public class UserDetailsActivity extends AppCompatActivity {
     private TextView userDetailAddress;
     private Toolbar toolbar;
     private OrdersAdapter mAdapter;
+    private MyApplication app;
 
     public void getUserDetails() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + getIntent().getStringExtra("userId");
-        client.addHeader("Authorization", getIntent().getStringExtra("token"));
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + getIntent().getStringExtra(Constants.USER_ID);
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
-                User user = gson.fromJson(new String(responseBody), User.class);
-                if(user.getUserImage() != null)
-                    GlideApp.with(getApplicationContext()).load(user.getUserImage().getUrl()).into(userDetailImage);
-                toolbar.setTitle(user.getFullName());
+                Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
+                UserDTO user = gson.fromJson(new String(responseBody), UserDTO.class);
+                if (user.getUserImage() != null) {
+                    GlideApp.with(getApplicationContext()).load(user.getUserImage().getUrl()).dontAnimate().into(userDetailImage);
+                }
+                toolbar.setTitle(user.getName().concat(" ").concat(user.getSurname()));
                 toolbar.setTitleTextColor(getColor(R.color.white));
                 setSupportActionBar(toolbar);
                 userDetailPhone.setText(user.getPhone());
@@ -63,19 +67,21 @@ public class UserDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(UserDetailsActivity.this, LoginActivity.class));
             }
         });
     }
 
     public void getOrdersByUser(long userId) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + "user/" + userId;
-        client.addHeader("Authorization", getIntent().getStringExtra("token"));
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + userId + "/" + Constants.PATH_ORDERS;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd").create();
+                Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 OrdersPage orders = gson.fromJson(new String(responseBody), OrdersPage.class);
                 ordersArray = new ArrayList<>(orders.getContent());
                 mAdapter.setOrders(ordersArray);
@@ -84,7 +90,10 @@ public class UserDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(UserDetailsActivity.this, LoginActivity.class));
+                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -94,6 +103,8 @@ public class UserDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_details);
         toolbar = findViewById(R.id.toolbarUserDetails);
+
+        app = (MyApplication) this.getApplication();
 
         userDetailImage = findViewById(R.id.userDetailImage);
         userDetailPhone = findViewById(R.id.userDetailPhone);

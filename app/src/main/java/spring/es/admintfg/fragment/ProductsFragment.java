@@ -33,9 +33,11 @@ import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.PaginationScrollListener;
 import spring.es.admintfg.R;
+import spring.es.admintfg.activity.LoginActivity;
 import spring.es.admintfg.activity.NewProductActivity;
 import spring.es.admintfg.adapter.ProductsAdapter;
 import spring.es.admintfg.dto.ProductDTO;
@@ -54,6 +56,7 @@ public class ProductsFragment extends Fragment {
     private int TOTAL_PAGES;
     private int currentPage = PAGE_START;
     private ItemTouchHelper productTouchHelper;
+    private MyApplication app;
 
     public void setProductsList(byte[] responseBody) {
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -76,7 +79,7 @@ public class ProductsFragment extends Fragment {
     public void getProducts(final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + Constants.PARAM_PAGE + page;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -85,6 +88,9 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
                 Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
@@ -93,7 +99,7 @@ public class ProductsFragment extends Fragment {
     public void getProductsOrderBy(String param, final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + param + Constants.PARAM_PAGE + page;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -102,6 +108,9 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
                 Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
@@ -110,7 +119,7 @@ public class ProductsFragment extends Fragment {
     public void getProductsByParam(String param, final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + Constants.PATH_SEARCH + param + Constants.PARAM_PAGE + page;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -119,6 +128,9 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
                 Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
@@ -127,7 +139,7 @@ public class ProductsFragment extends Fragment {
     public void deleteProduct(Long id) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + id;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.delete(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -137,6 +149,9 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
                 Toast.makeText(getContext(), "No se puede eliminar el producto", Toast.LENGTH_LONG).show();
                 //getProducts(PAGE_START);
             }
@@ -146,6 +161,8 @@ public class ProductsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_products, container, false);
+
+        app = (MyApplication) Objects.requireNonNull(this.getActivity()).getApplication();
 
         RecyclerView productsRecyclerView = view.findViewById(R.id.productsRecyclerView);
         progressBar = view.findViewById(R.id.main_progress);

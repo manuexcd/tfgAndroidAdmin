@@ -23,9 +23,4 @@ public class ImageDTO implements Serializable {
 	public void setUrl(String url) {
 		this.url = url;
 	}
-
-	public ImageDTO(long id, String url) {
-		this.id = id;
-		this.url = url;
-	}
 }

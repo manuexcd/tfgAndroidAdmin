@@ -66,6 +66,9 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });

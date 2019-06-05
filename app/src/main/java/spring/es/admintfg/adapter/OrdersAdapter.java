@@ -11,6 +11,7 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
+import spring.es.admintfg.Constants;
 import spring.es.admintfg.R;
 import spring.es.admintfg.dto.OrderDTO;
 
@@ -77,11 +78,11 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
 
         void bindTo(OrderDTO currentOrder) {
             //Populate the textviews with data
-            orderId.setText(("Order ").concat(String.valueOf(currentOrder.getId())));
+            orderId.setText(("ID: ").concat(String.valueOf(currentOrder.getId())));
             orderDate.setText(currentOrder.getDate().toString());
             orderPrice.setText(String.valueOf(new DecimalFormat("#.##").format(currentOrder.getTotalPrice())).concat(" €"));
-            orderUser.setText(currentOrder.getUser().getName().concat(" ").concat(currentOrder.getUser().getSurname()));
             orderStatus.setText(currentOrder.getOrderStatus());
+            orderUser.setText(currentOrder.getUser().getName().concat(" ").concat(currentOrder.getUser().getSurname()));
         }
     }
 }

@@ -11,12 +11,13 @@ public class Constants {
     public static final String PATH_ORDERS = "orders/";
     public static final String PATH_USERS = "users/";
     public static final String PATH_PRODUCTS = "products/";
+    public static final String PATH_ORDERLINES = "orderLines/";
     public static final String PATH_LOGIN = "login";
     public static final String PATH_SEARCH = "search/";
     public static final String PATH_SIGN_IN = "signin";
     public static final String PATH_EMAIL = "email/";
     public static final String PATH_TEMPORAL = "temporal/";
-    public static final String PATH_LOGIN_DETAILS = "/logindetails";
+    public static final String PATH_IMAGES = "images/";
 
     public static final String EURO = "€";
     public static final String EMPTY_STRING = "";
@@ -52,4 +53,7 @@ public class Constants {
     public static final String ORDER_STATUS_IN_PROGRESS = "IN_PROGRESS";
     public static final String ORDER_STATUS_IN_DELIVERY = "IN_DELIVERY";
     public static final String ORDER_STATUS_DELIVERED = "DELIVERED";
+
+    public static final String EMAIL = "email";
+    public static final String PASSWORD = "password";
 }

@@ -24,29 +24,30 @@ import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
-import spring.es.admintfg.model.Image;
-import spring.es.admintfg.model.Product;
+import spring.es.admintfg.dto.ImageDTO;
+import spring.es.admintfg.dto.ProductDTO;
 
 public class EditProductActivity extends AppCompatActivity {
-    private Toolbar editProductToolbar;
     private ImageView editProductDetailImage;
     private EditText editProductDetailName;
     private EditText editProductDetailDescription;
     private EditText editProductDetailPrice;
     private EditText editProductDetailStock;
-    private Image productImage;
+    private ImageDTO productImage;
+    private MyApplication app;
 
     public void getEditProductDetails() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + getIntent().getStringExtra(Constants.PRODUCT_ID);
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                Product product = gson.fromJson(new String(responseBody), Product.class);
+                ProductDTO product = gson.fromJson(new String(responseBody), ProductDTO.class);
                 if (product.getProductImage() != null)
                     GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(editProductDetailImage);
                 editProductDetailName.setText(product.getName());
@@ -58,17 +59,19 @@ public class EditProductActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
             }
         });
     }
 
     public void updateProductDetails() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         String productId = getIntent().getStringExtra(Constants.PRODUCT_ID);
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + productId;
-        Product productUpdated = new Product();
+        ProductDTO productUpdated = new ProductDTO();
         productUpdated.setProductImage(productImage);
         productUpdated.setId(Long.parseLong(productId));
         productUpdated.setName(editProductDetailName.getText().toString());
@@ -77,21 +80,22 @@ public class EditProductActivity extends AppCompatActivity {
         productUpdated.setStockAvailable(Integer.parseInt(editProductDetailStock.getText().toString().replace(" uds", "")));
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-        StringEntity stringProduct = new StringEntity(gson.toJson(productUpdated, Product.class), StandardCharsets.UTF_8);
+        StringEntity stringProduct = new StringEntity(gson.toJson(productUpdated, ProductDTO.class), StandardCharsets.UTF_8);
 
         client.put(getApplicationContext(), url, stringProduct, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Intent changeActivity = new Intent(EditProductActivity.this, ProductDetailsActivity.class);
                 changeActivity.putExtra(Constants.PRODUCT_ID, getIntent().getStringExtra(Constants.PRODUCT_ID));
-                changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
                 Toast.makeText(getApplicationContext(), "Product updated successfully", Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
             }
         });
     }
@@ -101,7 +105,9 @@ public class EditProductActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_product);
 
-        editProductToolbar = findViewById(R.id.editProductToolbar);
+        app = (MyApplication) this.getApplication();
+
+        Toolbar editProductToolbar = findViewById(R.id.editProductToolbar);
         editProductToolbar.setTitle("Editar producto");
         editProductToolbar.setTitleMarginStart(100);
         editProductToolbar.setTitleTextColor(Color.WHITE);
@@ -112,7 +118,6 @@ public class EditProductActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent changeActivity = new Intent(EditProductActivity.this, ProductDetailsActivity.class);
                 changeActivity.putExtra(Constants.PRODUCT_ID, getIntent().getStringExtra(Constants.PRODUCT_ID));
-                changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
             }
         });

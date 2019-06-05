@@ -27,12 +27,12 @@ import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
-import spring.es.admintfg.model.Order;
-import spring.es.admintfg.model.OrderLine;
-import spring.es.admintfg.model.Product;
-import spring.es.admintfg.model.User;
+import spring.es.admintfg.dto.OrderDTO;
+import spring.es.admintfg.dto.OrderLineDTO;
+import spring.es.admintfg.dto.ProductDTO;
 
 public class ProductDetailsActivity extends AppCompatActivity {
     private ImageView productDetailImage;
@@ -44,19 +44,19 @@ public class ProductDetailsActivity extends AppCompatActivity {
     //private Switch productVisible;
     private EditText productDetailInputStock;
     private ImageButton productDetailAddBtn;
-    private Order temporalOrder;
-    private User user;
-    private Product product;
+    private OrderDTO temporalOrder;
+    private ProductDTO product;
+    private MyApplication app;
 
     public void getProductDetails() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + getIntent().getStringExtra(Constants.PRODUCT_ID);
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                product = gson.fromJson(new String(responseBody), Product.class);
+                product = gson.fromJson(new String(responseBody), ProductDTO.class);
                 if (product.getProductImage() != null)
                     GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(productDetailImage);
                 productDetailName.setText(product.getName());
@@ -64,7 +64,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 productDetailPrice.setText(getResources().getString(R.string.stringRecommendedPrice).concat(" ").concat(String.valueOf(product.getPrice()).concat(" ").concat(Constants.EURO)));
                 productDetailStock.setText(String.valueOf(product.getStockAvailable()).concat(" uds"));
                 //productVisible.setChecked(product.isVisible());
-                if (getIntent().getStringExtra(Constants.HEADER_ADMIN) != null && getIntent().getStringExtra(Constants.HEADER_ADMIN).equals(Constants.FALSE)) {
+                if (!app.isAdmin()) {
                     if (product.getStockAvailable() > 0) {
                         productDetailStock.setText(getResources().getString(R.string.stringStock));
                         productDetailStock.setTextColor(Color.GREEN);
@@ -84,6 +84,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
@@ -92,49 +95,34 @@ public class ProductDetailsActivity extends AppCompatActivity {
     public void getTemporalOrder() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_TEMPORAL;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                if(statusCode != HttpStatus.SC_NO_CONTENT)
-                    temporalOrder = gson.fromJson(new String(responseBody), Order.class);
+                if (statusCode != HttpStatus.SC_NO_CONTENT)
+                    temporalOrder = gson.fromJson(new String(responseBody), OrderDTO.class);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    public void getUser(String userId) {
+    private void createTemporalOrder(OrderDTO order) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + userId;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
-        client.get(url, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                user = gson.fromJson(new String(responseBody), User.class);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    private void createTemporalOrder(Order order) {
-        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
-        StringEntity stringProduct = new StringEntity(gson.toJson(order, Order.class), StandardCharsets.UTF_8);
+        StringEntity stringOrder = new StringEntity(gson.toJson(order, OrderDTO.class), StandardCharsets.UTF_8);
 
-        client.post(getApplicationContext(), url, stringProduct, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
+        client.post(getApplicationContext(), url, stringOrder, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductAdded), Toast.LENGTH_LONG).show();
@@ -142,18 +130,21 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
+                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
 
-    private void updateTemporalOrder(Order order) {
+    private void updateTemporalOrder(OrderDTO order) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS + "temporal";
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
-        StringEntity stringProduct = new StringEntity(gson.toJson(order, Order.class), StandardCharsets.UTF_8);
+        StringEntity stringProduct = new StringEntity(gson.toJson(order, OrderDTO.class), StandardCharsets.UTF_8);
 
         client.put(getApplicationContext(), url, stringProduct, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
             @Override
@@ -163,7 +154,9 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
             }
         });
     }
@@ -173,9 +166,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_product_details);
 
+        app = (MyApplication) this.getApplication();
+
         Toolbar productDetailToolbar = findViewById(R.id.productDetailToolbar);
-        productDetailToolbar.setTitle("Detalles del producto");
-        productDetailToolbar.setTitleMarginStart(100);
+        productDetailToolbar.setTitle(getResources().getString(R.string.stringProductDetails));
+        productDetailToolbar.setTitleMarginStart(150);
         productDetailToolbar.setTitleTextColor(Color.WHITE);
 
         final ImageButton productDetailBackBtn = findViewById(R.id.productDetailBackBtn);
@@ -183,7 +178,6 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent changeActivity = new Intent(ProductDetailsActivity.this, MainActivity.class);
-                changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
             }
         });
@@ -199,21 +193,18 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
         getProductDetails();
         getTemporalOrder();
-        getUser(getIntent().getStringExtra(Constants.USER_ID));
 
         productDetailAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                OrderLine orderLine = new OrderLine();
+                OrderLineDTO orderLine = new OrderLineDTO();
                 orderLine.setQuantity(Integer.valueOf(productDetailInputStock.getText().toString()));
                 orderLine.setProduct(product);
                 if (temporalOrder == null) {
-                    Order order = new Order();
+                    OrderDTO order = new OrderDTO();
                     order.setOrderLines(Collections.singletonList(orderLine));
-                    order.setUser(user);
                     createTemporalOrder(order);
-                }
-                else {
+                } else {
                     temporalOrder.getOrderLines().add(orderLine);
                     updateTemporalOrder(temporalOrder);
                 }
@@ -226,14 +217,13 @@ public class ProductDetailsActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent changeActivity = new Intent(ProductDetailsActivity.this, EditProductActivity.class);
                 changeActivity.putExtra(Constants.PRODUCT_ID, getIntent().getStringExtra(Constants.PRODUCT_ID));
-                changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
             }
         });
     }
 
     protected void onStart() {
-        if (getIntent().getStringExtra(Constants.HEADER_ADMIN) != null && getIntent().getStringExtra(Constants.HEADER_ADMIN).equals(Constants.FALSE))
+        if (!app.isAdmin())
             fab.hide();
         super.onStart();
     }

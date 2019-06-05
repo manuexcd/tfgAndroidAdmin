@@ -19,10 +19,11 @@ import com.loopj.android.http.AsyncHttpResponseHandler;
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.HttpStatus;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.PagerAdapter;
-import spring.es.admintfg.model.Order;
+import spring.es.admintfg.dto.OrderDTO;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -30,23 +31,28 @@ public class MainActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ImageButton cartButton;
     private Long orderId;
+    private MyApplication app;
 
     public void getTemporalOrder() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_TEMPORAL;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 if(statusCode != HttpStatus.SC_NO_CONTENT) {
                     Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                     cartButton.setColorFilter(Color.RED);
-                    orderId = gson.fromJson(new String(responseBody), Order.class).getId();
+                    orderId = gson.fromJson(new String(responseBody), OrderDTO.class).getId();
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(MainActivity.this, LoginActivity.class));
+
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
@@ -56,6 +62,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        app = (MyApplication) this.getApplication();
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -81,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         if (tabLayout.getTabCount() == 0) {
             tabLayout.addTab(tabLayout.newTab().setText(R.string.stringProducts));
             tabLayout.addTab(tabLayout.newTab().setText(R.string.stringOrders));
-            if (getIntent().getStringExtra(Constants.HEADER_ADMIN) != null && getIntent().getStringExtra(Constants.HEADER_ADMIN).equals(Constants.TRUE))
+            if (app.isAdmin())
                 tabLayout.addTab(tabLayout.newTab().setText(R.string.stringUsers));
             else
                 getTemporalOrder();

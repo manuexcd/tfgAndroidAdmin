@@ -26,6 +26,9 @@
     <string name="stringNoEmptyDescription">La descripción no puede estar vacía</string>
     <string name="stringNoEmptyPrice">El precio no puede estar vacío</string>
     <string name="stringNoEmptyStock">El stock no puede estar vacío</string>
+    <string name="stringOrderConfirmed">Pedido confirmado correctamente</string>
+    <string name="stringOrderDetails">Detalles del pedido</string>
+    <string name="stringProductDetails">Detalles del producto</string>
 
     <string name="placeholder_product_name">Nombre</string>
     <string name="placeholder_product_description">Descripción</string>

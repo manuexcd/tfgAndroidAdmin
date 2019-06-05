@@ -26,24 +26,29 @@ import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.RecyclerItemClickListener;
+import spring.es.admintfg.activity.LoginActivity;
 import spring.es.admintfg.activity.OrderDetailsActivity;
 import spring.es.admintfg.adapter.OrdersAdapter;
 import spring.es.admintfg.dto.OrderDTO;
-import spring.es.admintfg.model.Order;
 import spring.es.admintfg.pagination.OrdersPage;
 
 public class OrdersFragment extends Fragment {
     private static ArrayList<OrderDTO> ordersArray;
     private OrdersAdapter mAdapter;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private MyApplication app;
 
     public void getOrders() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
+        if (!app.isAdmin())
+            url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId()  + "/" + Constants.PATH_ORDERS;
+
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -63,7 +68,30 @@ public class OrdersFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
                 Toast.makeText(getContext(), "Error", Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void getUsers(final int page) {
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PARAM_PAGE + page;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
+                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -93,6 +121,8 @@ public class OrdersFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_orders, container, false);
+
+        app = (MyApplication) Objects.requireNonNull(this.getActivity()).getApplication();
 
         EditText editTextSearchOrder = view.findViewById(R.id.editTextSearchOrder);
 
@@ -129,7 +159,6 @@ public class OrdersFragment extends Fragment {
 
                         Intent detailIntent = new Intent(view.getContext(), OrderDetailsActivity.class);
                         detailIntent.putExtra(Constants.ORDER_ID, String.valueOf(currentOrder.getId()));
-                        detailIntent.putExtra(Constants.TOKEN, Objects.requireNonNull(getActivity()).getIntent().getStringExtra(Constants.TOKEN));
                         view.getContext().startActivity(detailIntent);
                     }
 

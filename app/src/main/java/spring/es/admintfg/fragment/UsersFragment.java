@@ -27,10 +27,12 @@ import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.PaginationScrollListener;
 import spring.es.admintfg.R;
 import spring.es.admintfg.RecyclerItemClickListener;
+import spring.es.admintfg.activity.LoginActivity;
 import spring.es.admintfg.activity.UserDetailsActivity;
 import spring.es.admintfg.adapter.UsersAdapter;
 import spring.es.admintfg.dto.UserDTO;
@@ -48,6 +50,7 @@ public class UsersFragment extends Fragment {
     private static boolean isLastPage = false;
     private static int TOTAL_PAGES;
     private static int currentPage = PAGE_START;
+    private MyApplication app;
 
     public void setUsersList(byte[] responseBody) {
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).setPrettyPrinting().create();
@@ -70,7 +73,7 @@ public class UsersFragment extends Fragment {
     public void getUsers(final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PARAM_PAGE + page;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -80,6 +83,9 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
                 Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
@@ -88,7 +94,7 @@ public class UsersFragment extends Fragment {
     public void getUsersByParam(String param, final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_SEARCH + param + Constants.PARAM_PAGE + page;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, getActivity().getIntent().getStringExtra(Constants.TOKEN));
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -97,6 +103,9 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(getActivity(), LoginActivity.class));
                 Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
@@ -105,6 +114,8 @@ public class UsersFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_users, container, false);
+
+        app = (MyApplication) Objects.requireNonNull(this.getActivity()).getApplication();
 
         RecyclerView usersRecyclerView = view.findViewById(R.id.usersRecyclerView);
         progressBar = view.findViewById(R.id.main_progress);
@@ -125,7 +136,6 @@ public class UsersFragment extends Fragment {
 
                         Intent detailIntent = new Intent(view.getContext(), UserDetailsActivity.class);
                         detailIntent.putExtra(Constants.USER_ID, String.valueOf(currentUser.getId()));
-                        detailIntent.putExtra(Constants.TOKEN, Objects.requireNonNull(getActivity()).getIntent().getStringExtra(Constants.TOKEN));
                         view.getContext().startActivity(detailIntent);
                     }
 

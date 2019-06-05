@@ -25,8 +25,8 @@ import cz.msebera.android.httpclient.entity.StringEntity;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
-import spring.es.admintfg.model.Image;
-import spring.es.admintfg.model.Product;
+import spring.es.admintfg.dto.ImageDTO;
+import spring.es.admintfg.dto.ProductDTO;
 
 public class NewProductActivity extends AppCompatActivity {
     private EditText newProductName;
@@ -38,15 +38,15 @@ public class NewProductActivity extends AppCompatActivity {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS;
         client.addHeader(Constants.HEADER_AUTHORIZATION, getIntent().getStringExtra(Constants.TOKEN));
-        Product newProduct = new Product();
+        ProductDTO newProduct = new ProductDTO();
         newProduct.setName(newProductName.getText().toString());
         newProduct.setDescription(newProductDescription.getText().toString());
         newProduct.setPrice(Double.valueOf(newProductPrice.getText().toString()));
         newProduct.setStockAvailable(Integer.valueOf(newProductStock.getText().toString()));
-        newProduct.setProductImage(new Image());
+        newProduct.setProductImage(new ImageDTO());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
-        StringEntity stringProduct = new StringEntity(gson.toJson(newProduct, Product.class), StandardCharsets.UTF_8);
+        StringEntity stringProduct = new StringEntity(gson.toJson(newProduct, ProductDTO.class), StandardCharsets.UTF_8);
 
         client.post(getApplicationContext(), url, stringProduct, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
             @Override
@@ -54,7 +54,7 @@ public class NewProductActivity extends AppCompatActivity {
                 Intent changeActivity = new Intent(NewProductActivity.this, MainActivity.class);
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 String productString = new String(responseBody, StandardCharsets.UTF_8);
-                Product product = gson.fromJson(productString, Product.class);
+                ProductDTO product = gson.fromJson(productString, ProductDTO.class);
                 changeActivity.putExtra(Constants.PRODUCT_ID, product.getId());
                 changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
@@ -63,7 +63,9 @@ public class NewProductActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                String response = new String(responseBody);
+                if(statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(NewProductActivity.this, LoginActivity.class));
             }
         });
     }

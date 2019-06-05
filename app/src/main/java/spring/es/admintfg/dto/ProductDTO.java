@@ -2,8 +2,6 @@ package spring.es.admintfg.dto;
 
 import java.io.Serializable;
 
-import spring.es.admintfg.model.Image;
-
 public class ProductDTO implements Serializable {
 	private static final long serialVersionUID = 4340552175235204140L;
 	private long id;
@@ -12,7 +10,7 @@ public class ProductDTO implements Serializable {
 	private double price;
 	private int stockAvailable;
 	private boolean isVisible = true;
-	private Image productImage;
+	private ImageDTO productImage;
 
 	public long getId() {
 		return id;
@@ -62,11 +60,11 @@ public class ProductDTO implements Serializable {
 		isVisible = visible;
 	}
 
-	public Image getProductImage() {
+	public ImageDTO getProductImage() {
 		return productImage;
 	}
 
-	public void setProductImage(Image productImage) {
+	public void setProductImage(ImageDTO productImage) {
 		this.productImage = productImage;
 	}
 }
