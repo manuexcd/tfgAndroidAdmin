@@ -126,6 +126,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductAdded), Toast.LENGTH_LONG).show();
+                startActivity(new Intent(ProductDetailsActivity.this, MainActivity.class));
             }
 
             @Override
@@ -140,7 +141,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private void updateTemporalOrder(OrderDTO order) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS + "temporal";
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS;
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -150,6 +151,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductAdded), Toast.LENGTH_LONG).show();
+                startActivity(new Intent(ProductDetailsActivity.this, MainActivity.class));
             }
 
             @Override

@@ -3,13 +3,12 @@ package spring.es.admintfg.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -37,10 +36,10 @@ import spring.es.admintfg.pagination.OrdersPage;
 public class UserDetailsActivity extends AppCompatActivity {
     private ArrayList<OrderDTO> ordersArray;
     private ImageView userDetailImage;
+    private TextView userDetailFullname;
     private TextView userDetailPhone;
     private TextView userDetailEmail;
     private TextView userDetailAddress;
-    private Toolbar toolbar;
     private OrdersAdapter mAdapter;
     private MyApplication app;
 
@@ -56,9 +55,7 @@ public class UserDetailsActivity extends AppCompatActivity {
                 if (user.getUserImage() != null) {
                     GlideApp.with(getApplicationContext()).load(user.getUserImage().getUrl()).dontAnimate().into(userDetailImage);
                 }
-                toolbar.setTitle(user.getName().concat(" ").concat(user.getSurname()));
-                toolbar.setTitleTextColor(getColor(R.color.white));
-                setSupportActionBar(toolbar);
+                userDetailFullname.setText(user.getName().concat(" ").concat(user.getSurname()));
                 userDetailPhone.setText(user.getPhone());
                 userDetailEmail.setText(user.getEmail());
                 userDetailAddress.setText(user.getAddress());
@@ -68,7 +65,7 @@ public class UserDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(UserDetailsActivity.this, LoginActivity.class));
             }
         });
@@ -91,7 +88,7 @@ public class UserDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(UserDetailsActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
@@ -102,11 +99,16 @@ public class UserDetailsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_details);
-        toolbar = findViewById(R.id.toolbarUserDetails);
 
         app = (MyApplication) this.getApplication();
 
+        Toolbar toolbar = findViewById(R.id.toolbarUserDetails);
+        toolbar.setTitle("Perfil de usuario");
+        toolbar.setTitleMarginStart(150);
+        toolbar.setTitleTextColor(getColor(R.color.white));
+
         userDetailImage = findViewById(R.id.userDetailImage);
+        userDetailFullname = findViewById(R.id.userDetailFullname);
         userDetailPhone = findViewById(R.id.userDetailPhone);
         ToggleButton btnUserDetailPhone = findViewById(R.id.btnUserDetailPhone);
         userDetailEmail = findViewById(R.id.userDetailEmail);
@@ -121,6 +123,15 @@ public class UserDetailsActivity extends AppCompatActivity {
         ordersRecyclerView.setAdapter(mAdapter);
 
         getUserDetails();
+
+        final ImageButton productDetailBackBtn = findViewById(R.id.userDetailBackBtn);
+        productDetailBackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent changeActivity = new Intent(UserDetailsActivity.this, MainActivity.class);
+                startActivity(changeActivity);
+            }
+        });
 
         btnUserDetailPhone.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,15 +159,6 @@ public class UserDetailsActivity extends AppCompatActivity {
                 Intent addressIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
                 addressIntent.setPackage("com.google.android.apps.maps");
                 startActivity(addressIntent);
-            }
-        });
-
-        FloatingActionButton fab = findViewById(R.id.fabUserDetails);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
             }
         });
     }

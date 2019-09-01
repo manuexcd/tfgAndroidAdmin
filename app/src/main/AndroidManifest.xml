@@ -30,7 +30,8 @@
         <activity android:name=".activity.UserDetailsActivity" />
         <activity android:name=".activity.NewProductActivity" />
         <activity android:name=".activity.OrderDetailsActivity" />
-        <activity android:name=".activity.RegisterActivity"></activity>
+        <activity android:name=".activity.RegisterActivity" />
+        <activity android:name=".activity.EditProfileActivity" />
 
         <receiver
             android:name=".FileSelectedBroadCastReceiver"

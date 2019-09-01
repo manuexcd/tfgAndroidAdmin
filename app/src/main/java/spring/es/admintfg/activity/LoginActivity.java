@@ -79,7 +79,7 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                         String response = new String(responseBody);
-                        if(statusCode == 500 && response.contains("expired"))
+                        if (statusCode == 500 && response.contains("expired"))
                             startActivity(new Intent(LoginActivity.this, LoginActivity.class));
                     }
                 });
@@ -87,7 +87,10 @@ public class LoginActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                if (statusCode == 401)
+                    Toast.makeText(getApplicationContext(), "Usuario y/o contraseña incorrectos.", Toast.LENGTH_LONG).show();
+                else
+                    Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }

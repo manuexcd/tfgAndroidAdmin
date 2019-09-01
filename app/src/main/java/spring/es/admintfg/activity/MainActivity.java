@@ -40,17 +40,19 @@ public class MainActivity extends AppCompatActivity {
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                if(statusCode != HttpStatus.SC_NO_CONTENT) {
+                if (statusCode != HttpStatus.SC_NO_CONTENT) {
                     Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                     cartButton.setColorFilter(Color.RED);
-                    orderId = gson.fromJson(new String(responseBody), OrderDTO.class).getId();
+                    OrderDTO order = gson.fromJson(new String(responseBody), OrderDTO.class);
+                    orderId = order.getId();
+                    app.setTemporalOrder(order);
                 }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
 
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
@@ -72,12 +74,22 @@ public class MainActivity extends AppCompatActivity {
         cartButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(orderId != null) {
+                if (orderId != null) {
                     Intent changeActivity = new Intent(MainActivity.this, OrderDetailsActivity.class);
                     changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                     changeActivity.putExtra(Constants.ORDER_ID, String.valueOf(orderId));
                     startActivity(changeActivity);
                 }
+            }
+        });
+
+        ImageButton exitButton = findViewById(R.id.exitButton);
+        exitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
         });
 
@@ -89,10 +101,13 @@ public class MainActivity extends AppCompatActivity {
         if (tabLayout.getTabCount() == 0) {
             tabLayout.addTab(tabLayout.newTab().setText(R.string.stringProducts));
             tabLayout.addTab(tabLayout.newTab().setText(R.string.stringOrders));
-            if (app.isAdmin())
+            if (app.isAdmin()) {
                 tabLayout.addTab(tabLayout.newTab().setText(R.string.stringUsers));
-            else
+                cartButton.setVisibility(View.INVISIBLE);
+            } else {
+                tabLayout.addTab(tabLayout.newTab().setText(R.string.stringProfile));
                 getTemporalOrder();
+            }
             tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
             final ViewPager viewPager = findViewById(R.id.viewpager);

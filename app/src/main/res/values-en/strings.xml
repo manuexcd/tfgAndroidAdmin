@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">AdminTFG</string>
+    <string name="content_description_product_image">Product image</string>
+    <string name="placeholder_product_description">Description</string>
+    <string name="placeholder_product_name">Name</string>
+    <string name="placeholder_product_price">Price</string>
+    <string name="placeholder_product_stock">Stock</string>
+    <string name="placeholder_user_address">Address</string>
+    <string name="placeholder_user_email">Email</string>
+    <string name="placeholder_user_name">Name</string>
+    <string name="placeholder_user_password">Password</string>
+    <string name="placeholder_user_password_repeat">Repeat password</string>
+    <string name="placeholder_user_phone">Phone</string>
+    <string name="placeholder_user_surname">Last name</string>
+    <string name="productVisible">Show product</string>
+    <string name="stringButtonLogin">Log in</string>
+    <string name="stringButtonRegister">Sign in</string>
+    <string name="stringMobile">Phone</string>
+    <string name="stringNewProduct">New product</string>
+    <string name="stringNoEmptyDescription">Description cannot be empty</string>
+    <string name="stringNoEmptyName">Name cannot be empty</string>
+    <string name="stringNoEmptyPrice">Price cannot be empty</string>
+    <string name="stringNoEmptyStock">Stock cannot be empty</string>
+    <string name="stringNoStock">No stock</string>
+    <string name="stringOrderBuy">Buy</string>
+    <string name="stringOrderCancel">Cancel</string>
+    <string name="stringOrderCancelled">Order cancelled successfully</string>
+    <string name="stringOrderConfirmed">Order confirmed successfully</string>
+    <string name="stringOrderDetails">Order details</string>
+    <string name="stringOrderInDelivery">In delivery</string>
+    <string name="stringOrderInProgress">In progress</string>
+    <string name="stringOrderStatusUpdated">Order status updated successfully</string>
+    <string name="stringOrders">Orders</string>
+    <string name="stringPasswordPlaceholder">Password</string>
+    <string name="stringProductAdded">Product added successfully</string>
+    <string name="stringProductDetails">Product details</string>
+    <string name="stringProducts">Products</string>
+    <string name="stringProfile">Profile</string>
+    <string name="stringRememberUsername">Remember user</string>
+    <string name="stringSave">Save</string>
+    <string name="stringSettings">Config</string>
+    <string name="stringStock">Stock available</string>
+    <string name="stringUserPlaceholder">User</string>
+    <string name="stringUsers">Users</string>
+</resources>

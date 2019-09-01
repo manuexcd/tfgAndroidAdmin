@@ -2,6 +2,7 @@ package spring.es.admintfg.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -24,6 +25,8 @@ import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
+import spring.es.admintfg.activity.MainActivity;
+import spring.es.admintfg.activity.OrderDetailsActivity;
 import spring.es.admintfg.dto.OrderDTO;
 import spring.es.admintfg.dto.OrderLineDTO;
 
@@ -91,6 +94,7 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                     Toast.makeText(context, "OK", Toast.LENGTH_LONG).show();
+                    context.startActivity(new Intent(context, OrderLinesAdapter.class));
                 }
 
                 @Override

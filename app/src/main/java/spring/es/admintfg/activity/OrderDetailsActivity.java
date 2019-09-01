@@ -42,6 +42,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private Button btnOrderInProgress;
     private Button btnOrderInDelivery;
     private Button btnOrderBuy;
+    private Button btnOrderCancel;
     private OrderDTO order;
     private MyApplication app;
 
@@ -69,6 +70,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
                     case Constants.ORDER_STATUS_TEMPORAL:
                         btnOrderInProgress.setVisibility(View.INVISIBLE);
                         btnOrderInDelivery.setVisibility(View.INVISIBLE);
+                        btnOrderCancel.setVisibility(View.INVISIBLE);
                         if (!app.isAdmin())
                             btnOrderBuy.setVisibility(View.VISIBLE);
                         break;
@@ -80,11 +82,19 @@ public class OrderDetailsActivity extends AppCompatActivity {
                         }
                         break;
                     case Constants.ORDER_STATUS_IN_PROGRESS:
+                        btnOrderCancel.setVisibility(View.INVISIBLE);
                         if (app.isAdmin()) {
                             btnOrderInProgress.setVisibility(View.INVISIBLE);
                             btnOrderInDelivery.setVisibility(View.VISIBLE);
                             btnOrderBuy.setVisibility(View.INVISIBLE);
                         }
+                        break;
+                    case Constants.ORDER_STATUS_IN_DELIVERY:
+                    case Constants.ORDER_STATUS_CANCELLED:
+                        btnOrderCancel.setVisibility(View.INVISIBLE);
+                        btnOrderInProgress.setVisibility(View.INVISIBLE);
+                        btnOrderInDelivery.setVisibility(View.INVISIBLE);
+                        btnOrderBuy.setVisibility(View.INVISIBLE);
                         break;
                 }
 
@@ -96,7 +106,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
             }
         });
@@ -114,12 +124,60 @@ public class OrderDetailsActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringOrderConfirmed), Toast.LENGTH_LONG).show();
+                startActivity(new Intent(OrderDetailsActivity.this, MainActivity.class));
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
+                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void updateOrder() {
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
+
+        Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
+        StringEntity stringOrder = new StringEntity(gson.toJson(order, OrderDTO.class), StandardCharsets.UTF_8);
+
+        client.put(getApplicationContext(), url, stringOrder, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringOrderStatusUpdated), Toast.LENGTH_LONG).show();
+                startActivity(new Intent(OrderDetailsActivity.this, MainActivity.class));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if (statusCode == 500 && response.contains("expired"))
+                    startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
+                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    public void cancelOrder(Long orderId) {
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS + "cancel/" + orderId;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
+
+        client.put(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringOrderCancelled), Toast.LENGTH_LONG).show();
+                startActivity(new Intent(OrderDetailsActivity.this, MainActivity.class));
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                String response = new String(responseBody);
+                if (statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
@@ -162,12 +220,36 @@ public class OrderDetailsActivity extends AppCompatActivity {
         btnOrderInProgress = findViewById(R.id.btnOrderInProgress);
         btnOrderInDelivery = findViewById(R.id.btnOrderInDelivery);
         btnOrderBuy = findViewById(R.id.btnOrderBuy);
+        btnOrderCancel = findViewById(R.id.btnOrderCancel);
 
         btnOrderBuy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 order.setOrderStatus(Constants.ORDER_STATUS_RECEIVED);
                 confirmOrder();
+            }
+        });
+
+        btnOrderCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelOrder(order.getId());
+            }
+        });
+
+        btnOrderInProgress.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                order.setOrderStatus(Constants.ORDER_STATUS_IN_PROGRESS);
+                updateOrder();
+            }
+        });
+
+        btnOrderInDelivery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                order.setOrderStatus(Constants.ORDER_STATUS_IN_DELIVERY);
+                updateOrder();
             }
         });
     }

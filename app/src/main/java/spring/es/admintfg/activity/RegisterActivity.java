@@ -67,7 +67,7 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
@@ -92,14 +92,49 @@ public class RegisterActivity extends AppCompatActivity {
         btnSaveUser.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (registerUserPassword.getText().toString().equals(registerUserPasswordRepeat.getText().toString()))
-                    registerUser();
-                else {
+                if (registerUserPassword.getText().toString().equals(registerUserPasswordRepeat.getText().toString())) {
+                    if (validateInputs())
+                        registerUser();
+                } else {
                     registerUserPassword.setHighlightColor(getColor(R.color.red));
                     Toast.makeText(getApplicationContext(), "Las contraseñas no coinciden.", Toast.LENGTH_LONG).show();
                 }
-
             }
         });
+    }
+
+    public Boolean validateInputs() {
+        if (registerUserName.getText().toString().equals("")) {
+            registerUserName.setHighlightColor(getColor(R.color.red));
+            Toast.makeText(getApplicationContext(), "Introduzca un valor para el nombre.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (registerUserSurname.getText().toString().equals("")) {
+            registerUserSurname.setHighlightColor(getColor(R.color.red));
+            Toast.makeText(getApplicationContext(), "Introduzca un valor para el apellido.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (registerUserEmail.getText().toString().equals("")) {
+            registerUserEmail.setHighlightColor(getColor(R.color.red));
+            Toast.makeText(getApplicationContext(), "Introduzca un valor para el email.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (registerUserPhone.getText().toString().equals("")) {
+            registerUserPhone.setHighlightColor(getColor(R.color.red));
+            Toast.makeText(getApplicationContext(), "Introduzca un valor para el teléfono.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (registerUserAddress.getText().toString().equals("")) {
+            registerUserAddress.setHighlightColor(getColor(R.color.red));
+            Toast.makeText(getApplicationContext(), "Introduzca un valor para la dirección.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (registerUserPassword.getText().toString().equals("")) {
+            registerUserPassword.setHighlightColor(getColor(R.color.red));
+            Toast.makeText(getApplicationContext(), "Introduzca un valor para la contraseña.", Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        return true;
     }
 }

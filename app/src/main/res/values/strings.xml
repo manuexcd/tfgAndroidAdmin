@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AdminTFG</string>
+    <string name="app_name" translatable="false">AdminTFG</string>
     <string name="stringRememberUsername">Recordar usuario</string>
     <string name="stringButtonLogin">Entrar</string>
     <string name="stringButtonRegister">Registrarse</string>
@@ -9,15 +9,17 @@
     <string name="stringSettings">Configuración</string>
     <string name="stringProducts">Productos</string>
     <string name="stringUsers">Usuarios</string>
+    <string name="stringProfile">Perfil</string>
     <string name="stringOrders">Pedidos</string>
     <string name="stringMobile">Móvil</string>
-    <string name="title_activity_new_product">NewProductActivity</string>
+    <string name="title_activity_new_product" translatable="false">NewProductActivity</string>
     <string name="productVisible">Mostrar producto</string>
     <string name="stringOrderInProgress">En progreso</string>
     <string name="stringOrderInDelivery">En reparto</string>
     <string name="stringOrderBuy">Comprar</string>
-    <string name="stringAdmin">Admin</string>
-    <string name="stringRecommendedPrice">PVP</string>
+    <string name="stringOrderCancel">Cancelar</string>
+    <string name="stringAdmin" translatable="false">Admin</string>
+    <string name="stringRecommendedPrice" translatable="false">PVP</string>
     <string name="stringStock">En stock</string>
     <string name="stringNoStock">Sin stock</string>
     <string name="stringProductAdded">Producto añadido correctamente</string>
@@ -27,6 +29,8 @@
     <string name="stringNoEmptyPrice">El precio no puede estar vacío</string>
     <string name="stringNoEmptyStock">El stock no puede estar vacío</string>
     <string name="stringOrderConfirmed">Pedido confirmado correctamente</string>
+    <string name="stringOrderCancelled">Pedido cancelado correctamente</string>
+    <string name="stringOrderStatusUpdated">Estado del pedido actualizado correctamente</string>
     <string name="stringOrderDetails">Detalles del pedido</string>
     <string name="stringProductDetails">Detalles del producto</string>
 
@@ -42,7 +46,6 @@
     <string name="placeholder_user_address">Dirección</string>
     <string name="placeholder_user_password">Contraseña</string>
     <string name="placeholder_user_password_repeat">Repetir contraseña</string>
-
     <string name="content_description_product_image">Imagen del producto</string>
 
 </resources>
