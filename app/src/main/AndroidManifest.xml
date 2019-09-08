@@ -33,14 +33,6 @@
         <activity android:name=".activity.RegisterActivity" />
         <activity android:name=".activity.EditProfileActivity" />
 
-        <receiver
-            android:name=".FileSelectedBroadCastReceiver"
-            android:enabled="true"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.adityak.filebrowser.FILE_SELECTED_BROADCAST" />
-            </intent-filter>
-        </receiver>
     </application>
 
 </manifest>

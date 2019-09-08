@@ -1,8 +1,12 @@
 package spring.es.admintfg;
 
-public class Constants {
+public final class Constants {
+
+    private Constants() {
+    }
+
     public static final String IP_ADDRESS = "https://192.168.1.142:8080/";
-    //public static final String IP_ADDRESS = "https://35.195.211.109:443//";
+    //public static final String IP_ADDRESS = "https://34.76.88.15:443/";
     //public static final String IP_ADDRESS = "https://10.11.112.51:8443/";
 
     public static final String PATH_ORDERS = "orders/";
@@ -54,4 +58,10 @@ public class Constants {
 
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
+
+    public static final String GOOGLE_CLOUD_PROJECT_ID = "tfg-kubernetes-250608";
+    public static final String GOOGLE_CLOUD_BUCKET_NAME = "tfg-images";
+    public static final String IMAGE_TYPE = "image/*";
+    public static final String IMAGE_JPG = "image/jpeg";
+    public static final String IMAGE_PNG = "image/png";
 }

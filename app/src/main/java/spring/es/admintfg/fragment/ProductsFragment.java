@@ -307,7 +307,7 @@ public class ProductsFragment extends Fragment {
     }
 
     public void onStart() {
-        if (Objects.requireNonNull(getActivity()).getIntent().getStringExtra(Constants.HEADER_ADMIN) != null && getActivity().getIntent().getStringExtra(Constants.HEADER_ADMIN).equals(Constants.FALSE)) {
+        if (!app.isAdmin()) {
             fabNewProduct.hide();
             productTouchHelper.attachToRecyclerView(null);
         }

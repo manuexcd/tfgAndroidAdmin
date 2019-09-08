@@ -43,4 +43,5 @@
     <string name="stringStock">Stock available</string>
     <string name="stringUserPlaceholder">User</string>
     <string name="stringUsers">Users</string>
+    <string name="stringImage">Image</string>
 </resources>

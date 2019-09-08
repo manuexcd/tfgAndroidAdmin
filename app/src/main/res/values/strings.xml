@@ -33,6 +33,7 @@
     <string name="stringOrderStatusUpdated">Estado del pedido actualizado correctamente</string>
     <string name="stringOrderDetails">Detalles del pedido</string>
     <string name="stringProductDetails">Detalles del producto</string>
+    <string name="stringImage">Imagen</string>
 
     <string name="placeholder_product_name">Nombre</string>
     <string name="placeholder_product_description">Descripción</string>
