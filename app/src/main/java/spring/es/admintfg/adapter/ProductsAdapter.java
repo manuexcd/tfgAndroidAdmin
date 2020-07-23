@@ -43,8 +43,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     public void onBindViewHolder(@NonNull ProductsAdapter.ViewHolder holder, int position) {
         ProductDTO currentProduct = products.get(position);
         holder.bindTo(currentProduct);
-        if (currentProduct.getProductImage() != null)
-            GlideApp.with(context).load(currentProduct.getProductImage().getUrl()).into(holder.productImage);
     }
 
     public List<ProductDTO> getProducts() {
@@ -89,6 +87,10 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
             //Populate the textviews with data
             productName.setText(currentProduct.getName());
             productPrice.setText(String.valueOf(currentProduct.getPrice()).concat(" ").concat(Constants.EURO));
+            if(currentProduct.getProductImage() != null)
+                GlideApp.with(context).load(currentProduct.getProductImage()).dontAnimate().into(productImage);
+            else
+                GlideApp.with(context).load("").dontAnimate().into(productImage);
         }
 
         @Override

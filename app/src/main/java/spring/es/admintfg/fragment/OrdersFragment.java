@@ -44,9 +44,9 @@ public class OrdersFragment extends Fragment {
 
     public void getOrders() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PARAM_USER_ID;
         if (!app.isAdmin())
-            url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId()  + "/" + Constants.PATH_ORDERS;
+            url = url + app.getUserLogged().getId();
 
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
@@ -71,52 +71,10 @@ public class OrdersFragment extends Fragment {
                 String response = new String(responseBody);
                 if(statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), "Error", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "Error al recuperar los pedidos.", Toast.LENGTH_LONG).show();
             }
         });
     }
-
-    public void getUsers(final int page) {
-        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PARAM_PAGE + page;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
-        client.get(url, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    /*public void getOrdersByParam(String param) {
-        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + "param/" + Long.valueOf(param);
-        client.addHeader("Authorization", getActivity().getIntent().getStringExtra("token"));
-        client.get(url, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                Order[] orders = gson.fromJson(new String(responseBody), Order[].class);
-                ordersArray = new ArrayList<>(Arrays.asList(orders));
-                mAdapter.setOrders(ordersArray);
-                mAdapter.notifyDataSetChanged();
-                swipeRefreshLayout.setRefreshing(false);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                Toast.makeText(getContext(), "Error", Toast.LENGTH_LONG).show();
-            }
-        });
-    }*/
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {

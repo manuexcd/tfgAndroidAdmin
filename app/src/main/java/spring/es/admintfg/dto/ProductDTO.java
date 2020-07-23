@@ -10,7 +10,7 @@ public class ProductDTO implements Serializable {
 	private double price;
 	private int stockAvailable;
 	private boolean isVisible = true;
-	private ImageDTO productImage;
+	private String imageUrl;
 
 	public long getId() {
 		return id;
@@ -60,11 +60,11 @@ public class ProductDTO implements Serializable {
 		isVisible = visible;
 	}
 
-	public ImageDTO getProductImage() {
-		return productImage;
+	public String getProductImage() {
+		return imageUrl;
 	}
 
-	public void setProductImage(ImageDTO productImage) {
-		this.productImage = productImage;
+	public void setProductImage(String imageUrl) {
+		this.imageUrl = imageUrl;
 	}
 }

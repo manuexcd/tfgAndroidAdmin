@@ -2,7 +2,7 @@ package spring.es.admintfg.dto;
 
 public class OrderLineDTO {
 	private long id;
-	private ProductDTO product;
+	private long productId;
 	private int quantity;
 
 	public long getId() {
@@ -13,12 +13,12 @@ public class OrderLineDTO {
 		this.id = id;
 	}
 
-	public ProductDTO getProduct() {
-		return product;
+	public long getProductId() {
+		return productId;
 	}
 
-	public void setProduct(ProductDTO product) {
-		this.product = product;
+	public void setProductId(long productId) {
+		this.productId = productId;
 	}
 
 	public int getQuantity() {

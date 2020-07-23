@@ -44,4 +44,20 @@
     <string name="stringUserPlaceholder">User</string>
     <string name="stringUsers">Users</string>
     <string name="stringImage">Image</string>
+    <string name="stringSignInCompleted">Sign in successfully</string>
+    <string name="stringPasswordNotMatch">Passwords do not match</string>
+    <string name="stringEmptyName">Enter a value for the name</string>
+    <string name="stringEmptySurname">Enter a value for the surname</string>
+    <string name="stringEmptyEmail">Enter a value for the email</string>
+    <string name="stringEmptyPhone">Enter a value for the phone</string>
+    <string name="stringEmptyAddress">Enter a value for the address</string>
+    <string name="stringEmptyPassword">Enter a value for the password</string>
+    <string name="stringWrongUserOrPassword">Wrong user or password</string>
+    <string name="stringUserUpdated">User updated successfully</string>
+    <string name="stringUpdateProfile">Update user profile</string>
+    <string name="stringProductDeleted">Product deleted successfully</string>
+    <string name="stringErrorProductDeleted">Product can not be deleted</string>
+    <string name="stringProductUpdated">Product updated successfully</string>
+    <string name="stringErrorProductUpdated">Product can not be updated</string>
+    <string name="stringUpdateProduct">Update product</string>
 </resources>

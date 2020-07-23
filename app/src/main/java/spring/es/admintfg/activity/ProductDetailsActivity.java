@@ -58,7 +58,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 product = gson.fromJson(new String(responseBody), ProductDTO.class);
                 if (product.getProductImage() != null)
-                    GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(productDetailImage);
+                    GlideApp.with(getApplicationContext()).load(product.getProductImage()).into(productDetailImage);
                 productDetailName.setText(product.getName());
                 productDetailDescription.setText(product.getDescription());
                 productDetailPrice.setText(getResources().getString(R.string.stringRecommendedPrice).concat(" ").concat(String.valueOf(product.getPrice()).concat(" ").concat(Constants.EURO)));
@@ -85,7 +85,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
@@ -94,7 +94,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     public void getTemporalOrder() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_TEMPORAL;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_TEMPORAL + Constants.PARAM_USER_ID + app.getUserLogged().getId();
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
@@ -107,7 +107,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
@@ -116,7 +116,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private void createTemporalOrder(OrderDTO order) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PARAM_USER_ID + app.getUserLogged().getId();
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -132,7 +132,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
                 Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
@@ -141,7 +141,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
     private void updateTemporalOrder(OrderDTO order) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS;
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -157,7 +157,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
             }
         });
@@ -200,8 +200,8 @@ public class ProductDetailsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 OrderLineDTO orderLine = new OrderLineDTO();
-                orderLine.setQuantity(Integer.valueOf(productDetailInputStock.getText().toString()));
-                orderLine.setProduct(product);
+                orderLine.setQuantity(Integer.parseInt(productDetailInputStock.getText().toString()));
+                orderLine.setProductId(product.getId());
                 if (temporalOrder == null) {
                     OrderDTO order = new OrderDTO();
                     order.setOrderLines(Collections.singletonList(orderLine));

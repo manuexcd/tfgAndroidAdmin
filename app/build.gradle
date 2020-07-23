@@ -63,7 +63,4 @@ dependencies {
     implementation 'com.fasterxml.jackson.core:jackson-core:2.9.9'
     implementation 'com.fasterxml.jackson.core:jackson-annotations:2.9.6'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
-
-    implementation 'com.google.cloud:google-cloud-storage:1.89.0'
-    implementation 'javax.servlet:javax.servlet-api:3.1.0'
 }

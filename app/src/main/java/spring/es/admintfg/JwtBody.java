@@ -1,4 +1,4 @@
-package spring.es.admintfg.model;
+package spring.es.admintfg;
 
 public class JwtBody {
     private String sub;

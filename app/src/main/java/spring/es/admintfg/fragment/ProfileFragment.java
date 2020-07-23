@@ -37,7 +37,6 @@ public class ProfileFragment extends Fragment {
     private TextView userDetailPhone;
     private TextView userDetailEmail;
     private TextView userDetailAddress;
-    private FloatingActionButton fabUserProfile;
     private MyApplication app;
 
     public void getUserDetails() {
@@ -50,7 +49,7 @@ public class ProfileFragment extends Fragment {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 UserDTO user = gson.fromJson(new String(responseBody), UserDTO.class);
                 if (user.getUserImage() != null) {
-                    GlideApp.with(Objects.requireNonNull(getActivity()).getApplicationContext()).load(user.getUserImage().getUrl()).dontAnimate().into(userDetailImage);
+                    GlideApp.with(Objects.requireNonNull(getActivity()).getApplicationContext()).load(user.getUserImage()).dontAnimate().into(userDetailImage);
                 }
                 userDetailPhone.setText(user.getPhone());
                 userDetailEmail.setText(user.getEmail());
@@ -80,7 +79,7 @@ public class ProfileFragment extends Fragment {
         ToggleButton btnUserDetailEmail = view.findViewById(R.id.btnUserDetailEmail);
         userDetailAddress = view.findViewById(R.id.userDetailAddress);
         ToggleButton btnUserDetailAddress = view.findViewById(R.id.btnUserDetailAddress);
-        fabUserProfile = view.findViewById(R.id.fabUserProfile);
+        FloatingActionButton fabUserProfile = view.findViewById(R.id.fabUserProfile);
 
         getUserDetails();
 

@@ -16,34 +16,26 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.google.auth.Credentials;
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.cloud.storage.Acl;
-import com.google.cloud.storage.BlobInfo;
-import com.google.cloud.storage.Storage;
-import com.google.cloud.storage.StorageOptions;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
+import com.loopj.android.http.RequestParams;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.io.FileNotFoundException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
 
 import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
+import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
+import cz.msebera.android.httpclient.entity.mime.content.FileBody;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
-import spring.es.admintfg.dto.ImageDTO;
 import spring.es.admintfg.dto.ProductDTO;
 
 public class EditProductActivity extends AppCompatActivity {
@@ -52,7 +44,7 @@ public class EditProductActivity extends AppCompatActivity {
     private EditText editProductDetailDescription;
     private EditText editProductDetailPrice;
     private EditText editProductDetailStock;
-    private ImageDTO productImage;
+    private String productImage;
     private MyApplication app;
     private File image;
     private ImageButton btnDeleteImage;
@@ -67,7 +59,7 @@ public class EditProductActivity extends AppCompatActivity {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 ProductDTO product = gson.fromJson(new String(responseBody), ProductDTO.class);
                 if (product.getProductImage() != null)
-                    GlideApp.with(getApplicationContext()).load(product.getProductImage().getUrl()).into(editProductDetailImage);
+                    GlideApp.with(getApplicationContext()).load(product.getProductImage()).into(editProductDetailImage);
                 editProductDetailName.setText(product.getName());
                 editProductDetailDescription.setText(product.getDescription());
                 editProductDetailPrice.setText(String.valueOf(product.getPrice()).concat(Constants.EURO));
@@ -78,7 +70,7 @@ public class EditProductActivity extends AppCompatActivity {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
             }
         });
@@ -88,7 +80,7 @@ public class EditProductActivity extends AppCompatActivity {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         String productId = getIntent().getStringExtra(Constants.PRODUCT_ID);
-        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + productId;
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS;
         ProductDTO productUpdated = new ProductDTO();
         productUpdated.setProductImage(productImage);
         productUpdated.setId(Long.parseLong(productId));
@@ -106,42 +98,42 @@ public class EditProductActivity extends AppCompatActivity {
                 Intent changeActivity = new Intent(EditProductActivity.this, ProductDetailsActivity.class);
                 changeActivity.putExtra(Constants.PRODUCT_ID, getIntent().getStringExtra(Constants.PRODUCT_ID));
                 startActivity(changeActivity);
-                Toast.makeText(getApplicationContext(), "Product updated successfully", Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductUpdated), Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
             }
         });
     }
 
-    public void createImage(String imageUrl) {
+    public void createImage(File image) throws FileNotFoundException {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_IMAGES;
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_IMAGES;
 
-        ImageDTO imageDto = new ImageDTO();
-        imageDto.setUrl(imageUrl);
+        MultipartEntityBuilder entity = MultipartEntityBuilder.create();
+        entity.addPart(image.getName(), new FileBody(image));
 
-        Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-        StringEntity stringImage = new StringEntity(gson.toJson(imageDto, ImageDTO.class), Charset.defaultCharset());
+        RequestParams params = new RequestParams();
+        params.put("file", image);
 
-        client.post(getApplicationContext(), url, stringImage, ContentType.APPLICATION_JSON.getMimeType(), new AsyncHttpResponseHandler() {
+        client.post(getApplicationContext(), url, params, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                String response = new String(responseBody);
-                Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                productImage = gson.fromJson(response, ImageDTO.class);
+                productImage = new String(responseBody);
                 updateProductDetails();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
-                    startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
+                if (responseBody != null) {
+                    String response = new String(responseBody);
+                    if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                        startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
+                }
             }
         });
     }
@@ -154,7 +146,7 @@ public class EditProductActivity extends AppCompatActivity {
         app = (MyApplication) this.getApplication();
 
         Toolbar editProductToolbar = findViewById(R.id.editProductToolbar);
-        editProductToolbar.setTitle("Editar producto");
+        editProductToolbar.setTitle(getResources().getString(R.string.stringUpdateProduct));
         editProductToolbar.setTitleMarginStart(100);
         editProductToolbar.setTitleTextColor(Color.WHITE);
 
@@ -180,15 +172,14 @@ public class EditProductActivity extends AppCompatActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    if (image != null)
-                        createImage(uploadFile(image, Constants.GOOGLE_CLOUD_BUCKET_NAME));
-                    else
-                        updateProductDetails();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                updateProductDetails();
+                if (image != null) {
+                    try {
+                        createImage(image);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                } else
+                    updateProductDetails();
             }
         });
 
@@ -197,6 +188,7 @@ public class EditProductActivity extends AppCompatActivity {
         btnImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                editProductDetailImage.setVisibility(View.VISIBLE);
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType(Constants.IMAGE_TYPE);
                 String[] mimeTypes = {Constants.IMAGE_JPG, Constants.IMAGE_PNG};
@@ -210,6 +202,8 @@ public class EditProductActivity extends AppCompatActivity {
         btnDeleteImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                productImage = null;
+                editProductDetailImage.setVisibility(View.INVISIBLE);
                 editProductDetailImage.setImageURI(null);
                 btnDeleteImage.setVisibility(View.INVISIBLE);
             }
@@ -232,22 +226,5 @@ public class EditProductActivity extends AppCompatActivity {
             String picturePath = cursor.getString(columnIndex);
             image = new File(picturePath);
         }
-    }
-
-    @SuppressWarnings("deprecation")
-    public String uploadFile(File file, final String bucketName) throws IOException {
-        Credentials credentials = GoogleCredentials
-                .fromStream(getApplicationContext().getResources().openRawResource(R.raw.serviceaccount));
-
-        Storage storage = StorageOptions.newBuilder().setCredentials(credentials)
-                .setProjectId(Constants.GOOGLE_CLOUD_PROJECT_ID).build().getService();
-
-        BlobInfo blobInfo =
-                storage.create(
-                        BlobInfo
-                                .newBuilder(bucketName, file.getName())
-                                .setAcl(new ArrayList<>(Collections.singletonList(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER))))
-                                .build(), new FileInputStream(file));
-        return blobInfo.getMediaLink();
     }
 }

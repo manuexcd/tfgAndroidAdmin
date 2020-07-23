@@ -55,7 +55,6 @@ public class ProductsFragment extends Fragment {
     private boolean isLastPage = false;
     private int TOTAL_PAGES;
     private int currentPage = PAGE_START;
-    private ItemTouchHelper productTouchHelper;
     private MyApplication app;
 
     public void setProductsList(byte[] responseBody) {
@@ -69,7 +68,7 @@ public class ProductsFragment extends Fragment {
             mAdapter.getProducts().addAll(productsArray);
         mAdapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
-        editTextSearchProduct.setHint(String.valueOf(productsArray.size()).concat(" productos."));
+        editTextSearchProduct.setHint(String.valueOf(productsPage.getTotalElements()).concat(" productos."));
         TOTAL_PAGES = productsPage.getTotalPages();
         isLoading = false;
         progressBar.setVisibility(View.GONE);
@@ -89,9 +88,9 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(),"ProductsFragment:" + statusCode, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -109,9 +108,9 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "ProductsFragment:" + statusCode, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -129,9 +128,9 @@ public class ProductsFragment extends Fragment {
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), "ProductsFragment:" + statusCode, Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -143,16 +142,16 @@ public class ProductsFragment extends Fragment {
         client.delete(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Toast.makeText(getContext(), "Producto eliminado correctamente", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getResources().getString(R.string.stringProductDeleted), Toast.LENGTH_LONG).show();
                 getProducts(PAGE_START);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if(statusCode == 500 && response.contains(Constants.EXPIRED))
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), "No se puede eliminar el producto", Toast.LENGTH_LONG).show();
+                Toast.makeText(getContext(), getResources().getString(R.string.stringErrorProductDeleted), Toast.LENGTH_LONG).show();
                 //getProducts(PAGE_START);
             }
         });
@@ -224,38 +223,6 @@ public class ProductsFragment extends Fragment {
             }
         });
 
-        productTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
-            @Override
-            public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) {
-                int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN;
-                int swipeFlags = ItemTouchHelper.START | ItemTouchHelper.END;
-                return makeMovementFlags(dragFlags, swipeFlags);
-            }
-
-            @Override
-            public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, @NonNull RecyclerView.ViewHolder target) {
-                int from = viewHolder.getAdapterPosition();
-                int to = target.getAdapterPosition();
-                Collections.swap(productsArray, from, to);
-                mAdapter.notifyItemMoved(from, to);
-                return false;
-            }
-
-            @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-                Long productId = productsArray.get(viewHolder.getAdapterPosition()).getId();
-                productsArray.remove(viewHolder.getAdapterPosition());
-                mAdapter.notifyItemRemoved(viewHolder.getAdapterPosition());
-                try {
-                    deleteProduct(productId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-        productTouchHelper.attachToRecyclerView(productsRecyclerView);
-
         productsRecyclerView.addOnScrollListener(new PaginationScrollListener(layoutManager) {
             @Override
             protected void loadMoreItems() {
@@ -309,7 +276,6 @@ public class ProductsFragment extends Fragment {
     public void onStart() {
         if (!app.isAdmin()) {
             fabNewProduct.hide();
-            productTouchHelper.attachToRecyclerView(null);
         }
         super.onStart();
     }

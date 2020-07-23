@@ -114,7 +114,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
     public void confirmOrder() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS + "temporal";
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_TEMPORAL;
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -139,7 +139,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
     public void updateOrder() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS;
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -164,7 +164,7 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
     public void cancelOrder(Long orderId) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId() + "/" + Constants.PATH_ORDERS + "cancel/" + orderId;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + "cancel/" + orderId;
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
         client.put(url, new AsyncHttpResponseHandler() {

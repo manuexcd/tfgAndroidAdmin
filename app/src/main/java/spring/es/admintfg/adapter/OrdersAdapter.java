@@ -82,7 +82,7 @@ public class OrdersAdapter extends RecyclerView.Adapter<OrdersAdapter.ViewHolder
             orderDate.setText(currentOrder.getDate().toString());
             orderPrice.setText(String.valueOf(new DecimalFormat("#.##").format(currentOrder.getTotalPrice())).concat(" €"));
             orderStatus.setText(currentOrder.getOrderStatus());
-            orderUser.setText(currentOrder.getUser().getName().concat(" ").concat(currentOrder.getUser().getSurname()));
+            //orderUser.setText(currentOrder.getUser().getName().concat(" ").concat(currentOrder.getUser().getSurname()));
         }
     }
 }

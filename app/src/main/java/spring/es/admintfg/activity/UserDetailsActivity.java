@@ -53,7 +53,7 @@ public class UserDetailsActivity extends AppCompatActivity {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 UserDTO user = gson.fromJson(new String(responseBody), UserDTO.class);
                 if (user.getUserImage() != null) {
-                    GlideApp.with(getApplicationContext()).load(user.getUserImage().getUrl()).dontAnimate().into(userDetailImage);
+                    GlideApp.with(getApplicationContext()).load(user.getUserImage()).dontAnimate().into(userDetailImage);
                 }
                 userDetailFullname.setText(user.getName().concat(" ").concat(user.getSurname()));
                 userDetailPhone.setText(user.getPhone());
@@ -73,7 +73,7 @@ public class UserDetailsActivity extends AppCompatActivity {
 
     public void getOrdersByUser(long userId) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + userId + "/" + Constants.PATH_ORDERS;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PARAM_USER_ID + userId;
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override

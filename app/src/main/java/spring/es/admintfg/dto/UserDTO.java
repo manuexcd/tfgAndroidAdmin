@@ -13,8 +13,9 @@ public class UserDTO implements Serializable {
     private String phone;
     private String email;
     private String password;
-    private ImageDTO userImage;
+    private String imageUrl;
     private List<String> roles;
+    private Boolean confirmed;
 
     public long getId() {
         return id;
@@ -72,12 +73,12 @@ public class UserDTO implements Serializable {
         this.password = password;
     }
 
-    public ImageDTO getUserImage() {
-        return userImage;
+    public String getUserImage() {
+        return imageUrl;
     }
 
-    public void setUserImage(ImageDTO userImage) {
-        this.userImage = userImage;
+    public void setUserImage(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public List<String> getRoles() {
@@ -86,5 +87,13 @@ public class UserDTO implements Serializable {
 
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public Boolean getConfirmed() {
+        return confirmed;
+    }
+
+    public void setConfirmed(Boolean confirmed) {
+        this.confirmed = confirmed;
     }
 }

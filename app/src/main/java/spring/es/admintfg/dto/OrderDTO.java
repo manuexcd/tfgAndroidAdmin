@@ -17,8 +17,7 @@ public class OrderDTO implements Serializable {
     @JsonSerialize(using = CustomDateSerializer.class)
     private String orderStatus;
     private List<OrderLineDTO> orderLines;
-
-    private UserDTO user;
+    private long userId;
 
     public static OrderDTO fromJson(String s) {
         return new Gson().fromJson(s, OrderDTO.class);
@@ -68,11 +67,11 @@ public class OrderDTO implements Serializable {
         this.orderLines = orderLines;
     }
 
-    public UserDTO getUser() {
-        return user;
+    public long getUserId() {
+        return userId;
     }
 
-    public void setUser(UserDTO user) {
-        this.user = user;
+    public void setUserId(long userId) {
+        this.userId = userId;
     }
 }

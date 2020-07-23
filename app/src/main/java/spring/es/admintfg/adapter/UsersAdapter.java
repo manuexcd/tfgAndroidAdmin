@@ -32,7 +32,6 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
     @NonNull
     @Override
     public UsersAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.list_users, parent, false));
     }
 
@@ -83,7 +82,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.ViewHolder> 
             //Populate the textviews with data
             fullName.setText(currentUser.getName().concat(" ").concat(currentUser.getSurname()));
             if (currentUser.getUserImage() != null)
-                GlideApp.with(context).load(currentUser.getUserImage().getUrl()).dontAnimate().into(userImage);
+                GlideApp.with(context).load(currentUser.getUserImage()).dontAnimate().into(userImage);
             address.setText(currentUser.getAddress());
         }
     }

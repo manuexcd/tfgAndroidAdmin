@@ -5,20 +5,21 @@ public final class Constants {
     private Constants() {
     }
 
-    public static final String IP_ADDRESS = "https://192.168.1.142:8080/";
-    //public static final String IP_ADDRESS = "https://34.76.88.15:443/";
-    //public static final String IP_ADDRESS = "https://10.11.112.51:8443/";
+    public static final String IP_ADDRESS = "https://192.168.39.97/";
+    //public static final String IP_ADDRESS = "http://192.168.1.220:8080/";
 
     public static final String PATH_ORDERS = "orders/";
     public static final String PATH_USERS = "users/";
     public static final String PATH_PRODUCTS = "products/";
-    public static final String PATH_ORDERLINES = "orderLines/";
+    public static final String PATH_ORDER_LINES = "orderLines/";
     public static final String PATH_LOGIN = "login";
     public static final String PATH_SEARCH = "search/";
-    public static final String PATH_SIGN_IN = "signin";
+    public static final String PATH_SIGN_IN = "register/";
     public static final String PATH_EMAIL = "email/";
     public static final String PATH_TEMPORAL = "temporal/";
-    public static final String PATH_IMAGES = "images/";
+    public static final String PATH_IMAGES = "image/";
+
+    public static final String PARAM_USER_ID = "?userId=";
 
     public static final String EURO = "€";
     public static final String EMPTY_STRING = "";
@@ -32,11 +33,11 @@ public final class Constants {
     public static final String DATE_FORMAT = "yyyy-MM-dd";
 
     public static final String TOKEN = "token";
+    public static final String EXPIRED = "expired";
 
     public static final String USER_ID = "userId";
     public static final String PRODUCT_ID = "productId";
     public static final String ORDER_ID = "orderId";
-
 
     public static final String ORDER_NAME = "name";
     public static final String ORDER_PRICE_ASC = "price";
@@ -45,9 +46,6 @@ public final class Constants {
 
     public static final String ADMIN_ROLE = "ADMIN";
     public static final String BASIC_ROLE = "BASIC";
-
-    public static final String TRUE = "true";
-    public static final String FALSE = "false";
 
     public static final String ORDER_STATUS_TEMPORAL = "TEMPORAL";
     public static final String ORDER_STATUS_RECEIVED = "RECEIVED";
@@ -59,8 +57,6 @@ public final class Constants {
     public static final String EMAIL = "email";
     public static final String PASSWORD = "password";
 
-    public static final String GOOGLE_CLOUD_PROJECT_ID = "tfg-kubernetes-250608";
-    public static final String GOOGLE_CLOUD_BUCKET_NAME = "tfg-images";
     public static final String IMAGE_TYPE = "image/*";
     public static final String IMAGE_JPG = "image/jpeg";
     public static final String IMAGE_PNG = "image/png";

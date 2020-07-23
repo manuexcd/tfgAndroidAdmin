@@ -13,6 +13,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
@@ -21,14 +23,13 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 import spring.es.admintfg.Constants;
-import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
-import spring.es.admintfg.activity.MainActivity;
-import spring.es.admintfg.activity.OrderDetailsActivity;
+import spring.es.admintfg.activity.LoginActivity;
 import spring.es.admintfg.dto.OrderDTO;
 import spring.es.admintfg.dto.OrderLineDTO;
+import spring.es.admintfg.dto.ProductDTO;
 
 /**
  * Created by manue on 07/04/2018.
@@ -57,7 +58,7 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
     public void onBindViewHolder(@NonNull OrderLinesAdapter.ViewHolder holder, int position) {
         OrderLineDTO currentOrderLine = ordersLines.get(position);
         holder.bindTo(currentOrderLine);
-        GlideApp.with(context).load(currentOrderLine.getProduct().getProductImage().getUrl()).into(holder.orderLineProductImage);
+        //GlideApp.with(context).load(currentOrderLine.getProduct().getProductImage().getUrl()).into(holder.orderLineProductImage);
     }
 
     public void setOrderLines(ArrayList<OrderLineDTO> ordersLines) {
@@ -84,10 +85,34 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
         private TextView orderLineProductPrice;
         private ImageButton deleteOrderLineBtn;
         private Long id;
+        private ProductDTO product;
+
+        private void getProductDetails(long productId) {
+            AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(context);
+            String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + productId;
+            client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
+            client.get(url, new AsyncHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                    Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
+                    product = gson.fromJson(new String(responseBody), ProductDTO.class);
+                    orderLineProductName.setText(product.getName());
+                    orderLineProductPrice.setText(String.valueOf(new DecimalFormat("#.##").format(product.getPrice())).concat(" ").concat(Constants.EURO));
+                }
+
+                @Override
+                public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                    String response = new String(responseBody);
+                    if(statusCode == 500 && response.contains("expired"))
+                        context.startActivity(new Intent(context, LoginActivity.class));
+                    Toast.makeText(context, String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
 
         private void deleteOrderLine() {
             AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(context);
-            String url = Constants.IP_ADDRESS + Constants.PATH_ORDERLINES + id;
+            String url = Constants.IP_ADDRESS + Constants.PATH_ORDER_LINES + id;
             client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
 
             client.delete(context, url, new AsyncHttpResponseHandler() {
@@ -129,10 +154,9 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
 
         void bindTo(OrderLineDTO currentOrderLine) {
             //Populate the textviews with data
-            orderLineProductName.setText(currentOrderLine.getProduct().getName());
+            getProductDetails(currentOrderLine.getProductId());
             orderLineQuantity.setText(String.valueOf(currentOrderLine.getQuantity()));
-            orderLineProductPrice.setText(String.valueOf(new DecimalFormat("#.##").format(currentOrderLine.getProduct().getPrice())).concat(" ").concat(Constants.EURO));
-            id = currentOrderLine.getId();
+            //id = currentOrderLine.getId();
 
             if (app.isAdmin() || !OrderLinesAdapter.order.getOrderStatus().equals(Constants.ORDER_STATUS_TEMPORAL))
                 deleteOrderLineBtn.setVisibility(View.INVISIBLE);

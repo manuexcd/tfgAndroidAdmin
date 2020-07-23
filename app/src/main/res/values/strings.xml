@@ -34,6 +34,22 @@
     <string name="stringOrderDetails">Detalles del pedido</string>
     <string name="stringProductDetails">Detalles del producto</string>
     <string name="stringImage">Imagen</string>
+    <string name="stringSignInCompleted">Registro completado</string>
+    <string name="stringPasswordNotMatch">Las contraseñas no coinciden</string>
+    <string name="stringEmptyName">Introduzca un valor para el nombre</string>
+    <string name="stringEmptySurname">Introduzca un valor para el apellido</string>
+    <string name="stringEmptyEmail">Introduzca un valor para el email</string>
+    <string name="stringEmptyPhone">Introduzca un valor para el teléfono</string>
+    <string name="stringEmptyAddress">Introduzca un valor para la dirección</string>
+    <string name="stringEmptyPassword">Introduzca un valor para la contraseña</string>
+    <string name="stringWrongUserOrPassword">Usuario y/o contraseña incorrectos</string>
+    <string name="stringUserUpdated">Usuario actualizado con éxito</string>
+    <string name="stringUpdateProfile">Editar perfil</string>
+    <string name="stringProductDeleted">Producto eliminado correctamente</string>
+    <string name="stringErrorProductDeleted">Error al eliminar el producto</string>
+    <string name="stringProductUpdated">Producto editado correctamente</string>
+    <string name="stringErrorProductUpdated">Error al editar el producto</string>
+    <string name="stringUpdateProduct">Editar producto</string>
 
     <string name="placeholder_product_name">Nombre</string>
     <string name="placeholder_product_description">Descripción</string>
