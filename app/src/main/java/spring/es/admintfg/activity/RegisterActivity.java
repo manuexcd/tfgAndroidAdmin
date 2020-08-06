@@ -39,7 +39,6 @@ import spring.es.admintfg.R;
 import spring.es.admintfg.dto.UserDTO;
 
 public class RegisterActivity extends AppCompatActivity {
-
     private EditText registerUserName;
     private EditText registerUserSurname;
     private EditText registerUserEmail;
@@ -80,14 +79,16 @@ public class RegisterActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringSignInCompleted), Toast.LENGTH_LONG).show();
                 Intent changeActivity = new Intent(RegisterActivity.this, LoginActivity.class);
                 startActivity(changeActivity);
+                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -111,9 +112,11 @@ public class RegisterActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(RegisterActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }

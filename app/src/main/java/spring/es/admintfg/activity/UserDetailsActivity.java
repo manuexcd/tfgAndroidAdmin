@@ -9,7 +9,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -23,10 +22,12 @@ import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
 import de.cketti.mailto.EmailIntentBuilder;
+import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
+import spring.es.admintfg.PaginationScrollListener;
 import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.OrdersAdapter;
 import spring.es.admintfg.dto.OrderDTO;
@@ -35,13 +36,18 @@ import spring.es.admintfg.pagination.OrdersPage;
 
 public class UserDetailsActivity extends AppCompatActivity {
     private ArrayList<OrderDTO> ordersArray;
-    private ImageView userDetailImage;
+    private CircleImageView userDetailImage;
     private TextView userDetailFullname;
     private TextView userDetailPhone;
     private TextView userDetailEmail;
     private TextView userDetailAddress;
     private OrdersAdapter mAdapter;
     private MyApplication app;
+    private static final int PAGE_START = 0;
+    private boolean isLoading = false;
+    private boolean isLastPage = false;
+    private int TOTAL_PAGES;
+    private int currentPage = PAGE_START;
 
     public void getUserDetails() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
@@ -59,38 +65,52 @@ public class UserDetailsActivity extends AppCompatActivity {
                 userDetailPhone.setText(user.getPhone());
                 userDetailEmail.setText(user.getEmail());
                 userDetailAddress.setText(user.getAddress());
-                getOrdersByUser(user.getId());
+                getOrdersByDateDesc(user.getId(), PAGE_START);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(UserDetailsActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
 
-    public void getOrdersByUser(long userId) {
+    public void setOrdersList(byte[] responseBody) {
+        Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
+        OrdersPage ordersPage = gson.fromJson(new String(responseBody), OrdersPage.class);
+        ordersArray = new ArrayList<>(ordersPage.getContent());
+        TOTAL_PAGES = ordersPage.getTotalPages();
+        if (ordersPage.getFirst())
+            mAdapter.setOrders(ordersArray);
+        else if (!isLastPage)
+            mAdapter.getOrders().addAll(ordersArray);
+        mAdapter.notifyDataSetChanged();
+        TOTAL_PAGES = ordersPage.getTotalPages();
+        isLastPage = ordersPage.getLast();
+    }
+
+    public void getOrdersByDateDesc(long userId, final int page) {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PARAM_USER_ID + userId;
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_DATE_DESC + Constants.PARAM_USER_ID + userId + "&page=" + page;
+
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                OrdersPage orders = gson.fromJson(new String(responseBody), OrdersPage.class);
-                ordersArray = new ArrayList<>(orders.getContent());
-                mAdapter.setOrders(ordersArray);
-                mAdapter.notifyDataSetChanged();
+                setOrdersList(responseBody);
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(UserDetailsActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -118,9 +138,35 @@ public class UserDetailsActivity extends AppCompatActivity {
 
         RecyclerView ordersRecyclerView = findViewById(R.id.ordersRecyclerView);
         ordersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        ordersRecyclerView.setLayoutManager(layoutManager);
 
         mAdapter = new OrdersAdapter(ordersArray, this);
         ordersRecyclerView.setAdapter(mAdapter);
+
+        ordersRecyclerView.addOnScrollListener(new PaginationScrollListener(layoutManager) {
+            @Override
+            protected void loadMoreItems() {
+                isLoading = true;
+                currentPage += 1;
+                getOrdersByDateDesc(Long.parseLong(getIntent().getStringExtra(Constants.USER_ID)), currentPage);
+            }
+
+            @Override
+            public int getTotalPageCount() {
+                return TOTAL_PAGES;
+            }
+
+            @Override
+            public boolean isLastPage() {
+                return isLastPage;
+            }
+
+            @Override
+            public boolean isLoading() {
+                return isLoading;
+            }
+        });
 
         getUserDetails();
 
@@ -128,8 +174,7 @@ public class UserDetailsActivity extends AppCompatActivity {
         productDetailBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent changeActivity = new Intent(UserDetailsActivity.this, MainActivity.class);
-                startActivity(changeActivity);
+                finish();
             }
         });
 

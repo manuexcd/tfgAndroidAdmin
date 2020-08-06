@@ -58,9 +58,10 @@ public class LoginActivity extends AppCompatActivity {
                 List<Header> listHeaders = new ArrayList<>(Arrays.asList(headers));
                 changeActivity = new Intent(LoginActivity.this, MainActivity.class);
                 for (Header header : listHeaders) {
-                    if (header.getName().equals(Constants.HEADER_AUTHORIZATION))
+                    if (header.getName().equals(Constants.HEADER_AUTHORIZATION)) {
                         app.setToken(header.getValue());
-
+                        app.setPassword(password.getText().toString());
+                    }
                 }
 
                 String urlDetails = Constants.IP_ADDRESS + Constants.PATH_USERS + Constants.PATH_EMAIL + user.getText().toString();
@@ -78,9 +79,11 @@ public class LoginActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                        String response = new String(responseBody);
-                        if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                        if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                             startActivity(new Intent(LoginActivity.this, LoginActivity.class));
+                            Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                            finish();
+                        }
                     }
                 });
             }

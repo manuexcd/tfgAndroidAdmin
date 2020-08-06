@@ -27,7 +27,6 @@ import spring.es.admintfg.dto.OrderDTO;
 
 
 public class MainActivity extends AppCompatActivity {
-
     private TabLayout tabLayout;
     private ImageButton cartButton;
     private Long orderId;
@@ -35,7 +34,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void getTemporalOrder() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_TEMPORAL + "?userId=" + app.getUserLogged().getId();
+        String url = Constants.IP_ADDRESS + Constants.PATH_ORDERS + Constants.PATH_TEMPORAL + Constants.PARAM_USER_ID + app.getUserLogged().getId();
         client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
         client.get(url, new AsyncHttpResponseHandler() {
             @Override
@@ -51,11 +50,11 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(MainActivity.this, LoginActivity.class));
-
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }

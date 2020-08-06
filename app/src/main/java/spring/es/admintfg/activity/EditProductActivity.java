@@ -7,13 +7,14 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -31,6 +32,7 @@ import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
 import cz.msebera.android.httpclient.entity.mime.content.FileBody;
+import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
@@ -39,7 +41,7 @@ import spring.es.admintfg.R;
 import spring.es.admintfg.dto.ProductDTO;
 
 public class EditProductActivity extends AppCompatActivity {
-    private ImageView editProductDetailImage;
+    private CircleImageView editProductDetailImage;
     private EditText editProductDetailName;
     private EditText editProductDetailDescription;
     private EditText editProductDetailPrice;
@@ -58,20 +60,26 @@ public class EditProductActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 ProductDTO product = gson.fromJson(new String(responseBody), ProductDTO.class);
-                if (product.getProductImage() != null)
-                    GlideApp.with(getApplicationContext()).load(product.getProductImage()).into(editProductDetailImage);
                 editProductDetailName.setText(product.getName());
                 editProductDetailDescription.setText(product.getDescription());
                 editProductDetailPrice.setText(String.valueOf(product.getPrice()).concat(Constants.EURO));
                 editProductDetailStock.setText(String.valueOf(product.getStockAvailable()).concat(" uds"));
                 productImage = product.getProductImage();
+                if (product.getProductImage() != null) {
+                    btnDeleteImage.setVisibility(View.VISIBLE);
+                    GlideApp.with(getApplicationContext()).load(product.getProductImage()).into(editProductDetailImage);
+                } else {
+                    btnDeleteImage.setVisibility(View.INVISIBLE);
+                }
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -99,13 +107,16 @@ public class EditProductActivity extends AppCompatActivity {
                 changeActivity.putExtra(Constants.PRODUCT_ID, getIntent().getStringExtra(Constants.PRODUCT_ID));
                 startActivity(changeActivity);
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductUpdated), Toast.LENGTH_LONG).show();
+                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -131,8 +142,10 @@ public class EditProductActivity extends AppCompatActivity {
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                 if (responseBody != null) {
                     String response = new String(responseBody);
-                    if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                    if (statusCode == 500 && response.contains(Constants.EXPIRED)) {
                         startActivity(new Intent(EditProductActivity.this, LoginActivity.class));
+                        finish();
+                    }
                 }
             }
         });
@@ -154,9 +167,7 @@ public class EditProductActivity extends AppCompatActivity {
         editProductBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent changeActivity = new Intent(EditProductActivity.this, ProductDetailsActivity.class);
-                changeActivity.putExtra(Constants.PRODUCT_ID, getIntent().getStringExtra(Constants.PRODUCT_ID));
-                startActivity(changeActivity);
+                finish();
             }
         });
 
@@ -168,23 +179,24 @@ public class EditProductActivity extends AppCompatActivity {
 
         getEditProductDetails();
 
-        Button btnSave = findViewById(R.id.btnEditProduct);
-        btnSave.setOnClickListener(new View.OnClickListener() {
+        FloatingActionButton fabEditProduct = findViewById(R.id.fabEditProduct);
+        fabEditProduct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (image != null) {
-                    try {
-                        createImage(image);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                } else
-                    updateProductDetails();
+                if (validateForm()) {
+                    if (image != null) {
+                        try {
+                            createImage(image);
+                        } catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    } else
+                        updateProductDetails();
+                }
             }
         });
 
         Button btnImage = findViewById(R.id.btnImage);
-
         btnImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -198,13 +210,11 @@ public class EditProductActivity extends AppCompatActivity {
         });
 
         btnDeleteImage = findViewById(R.id.btnDeleteImage);
-        btnDeleteImage.setVisibility(View.INVISIBLE);
         btnDeleteImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 productImage = null;
-                editProductDetailImage.setVisibility(View.INVISIBLE);
-                editProductDetailImage.setImageURI(null);
+                GlideApp.with(getApplicationContext()).load("").into(editProductDetailImage);
                 btnDeleteImage.setVisibility(View.INVISIBLE);
             }
         });
@@ -226,5 +236,26 @@ public class EditProductActivity extends AppCompatActivity {
             String picturePath = cursor.getString(columnIndex);
             image = new File(picturePath);
         }
+    }
+
+    private boolean validateForm() {
+        if (TextUtils.isEmpty(editProductDetailName.getText().toString().trim())) {
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyName), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (TextUtils.isEmpty(editProductDetailDescription.getText().toString().trim())) {
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyDescription), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (TextUtils.isEmpty(editProductDetailPrice.getText().toString().trim())) {
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyPrice), Toast.LENGTH_LONG).show();
+            return false;
+        }
+        if (TextUtils.isEmpty(editProductDetailStock.getText().toString().trim())) {
+            Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringNoEmptyStock), Toast.LENGTH_LONG).show();
+            return false;
+        }
+
+        return true;
     }
 }

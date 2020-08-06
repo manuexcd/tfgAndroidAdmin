@@ -62,20 +62,13 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
     }
 
     class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        //Member Variables for the TextViews
         private TextView productName;
         private TextView productPrice;
         private ImageView productImage;
 
-        /**
-         * Constructor for the ViewHolder, used in onCreateViewHolder().
-         *
-         * @param itemView The rootview of the list_item.xml layout file
-         */
         ViewHolder(View itemView) {
             super(itemView);
 
-            //Initialize the views
             productName = itemView.findViewById(R.id.productName);
             productPrice = itemView.findViewById(R.id.productPrice);
             productImage = itemView.findViewById(R.id.productImage);
@@ -84,7 +77,6 @@ public class ProductsAdapter extends RecyclerView.Adapter<ProductsAdapter.ViewHo
         }
 
         void bindTo(ProductDTO currentProduct) {
-            //Populate the textviews with data
             productName.setText(currentProduct.getName());
             productPrice.setText(String.valueOf(currentProduct.getPrice()).concat(" ").concat(Constants.EURO));
             if(currentProduct.getProductImage() != null)

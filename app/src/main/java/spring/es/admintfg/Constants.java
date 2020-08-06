@@ -11,13 +11,16 @@ public final class Constants {
     public static final String PATH_ORDERS = "orders/";
     public static final String PATH_USERS = "users/";
     public static final String PATH_PRODUCTS = "products/";
-    public static final String PATH_ORDER_LINES = "orderLines/";
+    public static final String PATH_ORDER_LINES = "lines/";
     public static final String PATH_LOGIN = "login";
     public static final String PATH_SEARCH = "search/";
     public static final String PATH_SIGN_IN = "register/";
     public static final String PATH_EMAIL = "email/";
     public static final String PATH_TEMPORAL = "temporal/";
     public static final String PATH_IMAGES = "image/";
+    public static final String PATH_DATE_ASC = "dateasc/";
+    public static final String PATH_DATE_DESC = "datedesc/";
+    public static final String PATH_PARAM = "param/";
 
     public static final String PARAM_USER_ID = "?userId=";
 
@@ -60,4 +63,10 @@ public final class Constants {
     public static final String IMAGE_TYPE = "image/*";
     public static final String IMAGE_JPG = "image/jpeg";
     public static final String IMAGE_PNG = "image/png";
+
+    public static final String LAST_SEARCH_PARAM = "param";
+    public static final String LAST_SEARCH_ORDER_NAME = "name";
+    public static final String LAST_SEARCH_ORDER_PRICE_ASC = "price";
+    public static final String LAST_SEARCH_ORDER_PRICE_DESC = "pricedesc";
+    public static final String LAST_SEARCH_ORDER_STOCK = "stock";
 }

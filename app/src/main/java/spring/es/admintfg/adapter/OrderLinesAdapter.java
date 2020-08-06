@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,11 +21,15 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import cz.msebera.android.httpclient.Header;
+import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
 import spring.es.admintfg.activity.LoginActivity;
+import spring.es.admintfg.activity.MainActivity;
+import spring.es.admintfg.activity.OrderDetailsActivity;
 import spring.es.admintfg.dto.OrderDTO;
 import spring.es.admintfg.dto.OrderLineDTO;
 import spring.es.admintfg.dto.ProductDTO;
@@ -40,6 +43,7 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
     private Context context;
     private MyApplication app;
     private static OrderDTO order;
+    private OrderLineDTO lineToRemove;
 
     public OrderLinesAdapter(ArrayList<OrderLineDTO> ordersLines, Context context) {
         this.ordersLines = ordersLines;
@@ -49,8 +53,6 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
     @NonNull
     @Override
     public OrderLinesAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        app = (MyApplication) ((Activity) context).getApplication();
-
         return new ViewHolder(LayoutInflater.from(context).inflate(R.layout.list_order_lines, parent, false));
     }
 
@@ -58,7 +60,6 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
     public void onBindViewHolder(@NonNull OrderLinesAdapter.ViewHolder holder, int position) {
         OrderLineDTO currentOrderLine = ordersLines.get(position);
         holder.bindTo(currentOrderLine);
-        //GlideApp.with(context).load(currentOrderLine.getProduct().getProductImage().getUrl()).into(holder.orderLineProductImage);
     }
 
     public void setOrderLines(ArrayList<OrderLineDTO> ordersLines) {
@@ -78,34 +79,37 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
-        //Member Variables for the TextViews
-        private ImageView orderLineProductImage;
+        private CircleImageView orderLineProductImage;
         private TextView orderLineProductName;
         private TextView orderLineQuantity;
         private TextView orderLineProductPrice;
+        private TextView orderLinePrice;
         private ImageButton deleteOrderLineBtn;
         private Long id;
-        private ProductDTO product;
 
-        private void getProductDetails(long productId) {
+        private void getProductDetails(final OrderLineDTO currentOrderLine) {
             AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(context);
-            String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + productId;
+            String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + currentOrderLine.getProductId();
             client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
             client.get(url, new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                     Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
-                    product = gson.fromJson(new String(responseBody), ProductDTO.class);
+                    ProductDTO product = gson.fromJson(new String(responseBody), ProductDTO.class);
                     orderLineProductName.setText(product.getName());
-                    orderLineProductPrice.setText(String.valueOf(new DecimalFormat("#.##").format(product.getPrice())).concat(" ").concat(Constants.EURO));
+                    orderLineProductPrice.setText(String.valueOf(new DecimalFormat("#.##").format(product.getPrice())).concat(Constants.EURO));
+                    if (product.getProductImage() != null && !product.getProductImage().equals("")) {
+                        GlideApp.with(context).load(product.getProductImage()).dontAnimate().into(orderLineProductImage);
+                    }
+                    orderLinePrice.setText(String.valueOf(new DecimalFormat("#.##").format(currentOrderLine.getQuantity() * product.getPrice())).concat(Constants.EURO));
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    String response = new String(responseBody);
-                    if(statusCode == 500 && response.contains("expired"))
+                    if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                         context.startActivity(new Intent(context, LoginActivity.class));
-                    Toast.makeText(context, String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    }
                 }
             });
         }
@@ -118,13 +122,30 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
             client.delete(context, url, new AsyncHttpResponseHandler() {
                 @Override
                 public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                    Toast.makeText(context, "OK", Toast.LENGTH_LONG).show();
-                    context.startActivity(new Intent(context, OrderLinesAdapter.class));
+                    ordersLines.remove(lineToRemove);
+                    OrderLinesAdapter.super.notifyDataSetChanged();
+
+                    if(!ordersLines.isEmpty()) {
+                        Intent intent = ((Activity) context).getIntent();
+
+                        Intent detailIntent = new Intent(context, OrderDetailsActivity.class);
+                        detailIntent.putExtra(Constants.ORDER_ID, String.valueOf(order.getId()));
+                        detailIntent.putExtra(Constants.TOKEN, intent.getStringExtra(Constants.TOKEN));
+                        detailIntent.putExtra(Constants.HEADER_ADMIN, intent.getStringExtra(Constants.HEADER_ADMIN));
+                        detailIntent.putExtra(Constants.USER_ID, intent.getStringExtra(Constants.USER_ID));
+                        context.startActivity(detailIntent);
+                    }
+                    else
+                        context.startActivity(new Intent(context, MainActivity.class));
+                    ((Activity)context).finish();
                 }
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                    Toast.makeText(context, String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
+                        context.startActivity(new Intent(context, LoginActivity.class));
+                        Toast.makeText(context, R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    }
                 }
             });
         }
@@ -137,11 +158,13 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
         ViewHolder(View itemView) {
             super(itemView);
 
-            //Initialize the views
+            app = MyApplication.getInstance();
+
             orderLineProductImage = itemView.findViewById(R.id.orderLineProductImage);
             orderLineProductName = itemView.findViewById(R.id.orderLineProductName);
             orderLineQuantity = itemView.findViewById(R.id.orderLineQuantity);
             orderLineProductPrice = itemView.findViewById(R.id.orderLineProductPrice);
+            orderLinePrice = itemView.findViewById(R.id.orderLinePrice);
             deleteOrderLineBtn = itemView.findViewById(R.id.deleteOrderLineBtn);
 
             deleteOrderLineBtn.setOnClickListener(new View.OnClickListener() {
@@ -153,11 +176,10 @@ public class OrderLinesAdapter extends RecyclerView.Adapter<OrderLinesAdapter.Vi
         }
 
         void bindTo(OrderLineDTO currentOrderLine) {
-            //Populate the textviews with data
-            getProductDetails(currentOrderLine.getProductId());
+            getProductDetails(currentOrderLine);
+            lineToRemove = currentOrderLine;
             orderLineQuantity.setText(String.valueOf(currentOrderLine.getQuantity()));
-            //id = currentOrderLine.getId();
-
+            id = currentOrderLine.getId();
             if (app.isAdmin() || !OrderLinesAdapter.order.getOrderStatus().equals(Constants.ORDER_STATUS_TEMPORAL))
                 deleteOrderLineBtn.setVisibility(View.INVISIBLE);
         }

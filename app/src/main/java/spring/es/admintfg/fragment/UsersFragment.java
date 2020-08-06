@@ -31,9 +31,7 @@ import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.PaginationScrollListener;
 import spring.es.admintfg.R;
-import spring.es.admintfg.RecyclerItemClickListener;
 import spring.es.admintfg.activity.LoginActivity;
-import spring.es.admintfg.activity.UserDetailsActivity;
 import spring.es.admintfg.adapter.UsersAdapter;
 import spring.es.admintfg.dto.UserDTO;
 import spring.es.admintfg.pagination.UsersPage;
@@ -83,10 +81,10 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -103,10 +101,10 @@ public class UsersFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -127,24 +125,6 @@ public class UsersFragment extends Fragment {
         usersRecyclerView.setAdapter(mAdapter);
 
         getUsers(PAGE_START);
-
-        usersRecyclerView.addOnItemTouchListener(
-                new RecyclerItemClickListener(view.getContext(), usersRecyclerView, new RecyclerItemClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        UserDTO currentUser = mAdapter.getUsers().get(position);
-
-                        Intent detailIntent = new Intent(view.getContext(), UserDetailsActivity.class);
-                        detailIntent.putExtra(Constants.USER_ID, String.valueOf(currentUser.getId()));
-                        view.getContext().startActivity(detailIntent);
-                    }
-
-                    @Override
-                    public void onLongItemClick(View view, int position) {
-                        // do whatever
-                    }
-                })
-        );
 
         usersRecyclerView.addOnScrollListener(new PaginationScrollListener(layoutManager) {
             @Override

@@ -1,5 +1,7 @@
 package spring.es.admintfg.activity;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -9,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,6 +26,7 @@ import cz.msebera.android.httpclient.Header;
 import cz.msebera.android.httpclient.HttpStatus;
 import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
+import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
@@ -35,12 +37,13 @@ import spring.es.admintfg.dto.OrderLineDTO;
 import spring.es.admintfg.dto.ProductDTO;
 
 public class ProductDetailsActivity extends AppCompatActivity {
-    private ImageView productDetailImage;
+    private CircleImageView productDetailImage;
     private TextView productDetailName;
     private TextView productDetailDescription;
     private TextView productDetailPrice;
     private TextView productDetailStock;
     private FloatingActionButton fab;
+    private FloatingActionButton fabDeleteProduct;
     //private Switch productVisible;
     private EditText productDetailInputStock;
     private ImageButton productDetailAddBtn;
@@ -61,7 +64,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
                     GlideApp.with(getApplicationContext()).load(product.getProductImage()).into(productDetailImage);
                 productDetailName.setText(product.getName());
                 productDetailDescription.setText(product.getDescription());
-                productDetailPrice.setText(getResources().getString(R.string.stringRecommendedPrice).concat(" ").concat(String.valueOf(product.getPrice()).concat(" ").concat(Constants.EURO)));
+                productDetailPrice.setText((String.valueOf(product.getPrice()).concat(Constants.EURO)));
                 productDetailStock.setText(String.valueOf(product.getStockAvailable()).concat(" uds"));
                 //productVisible.setChecked(product.isVisible());
                 if (!app.isAdmin()) {
@@ -84,10 +87,33 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void deleteProduct(String id) {
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
+        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + id;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
+        client.delete(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                startActivity(new Intent(ProductDetailsActivity.this, MainActivity.class));
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductDeleted), Toast.LENGTH_LONG).show();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
+                    startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -106,10 +132,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -131,10 +158,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -156,9 +184,11 @@ public class ProductDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(ProductDetailsActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -179,8 +209,7 @@ public class ProductDetailsActivity extends AppCompatActivity {
         productDetailBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent changeActivity = new Intent(ProductDetailsActivity.this, MainActivity.class);
-                startActivity(changeActivity);
+                finish();
             }
         });
 
@@ -199,17 +228,20 @@ public class ProductDetailsActivity extends AppCompatActivity {
         productDetailAddBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                OrderLineDTO orderLine = new OrderLineDTO();
-                orderLine.setQuantity(Integer.parseInt(productDetailInputStock.getText().toString()));
-                orderLine.setProductId(product.getId());
-                if (temporalOrder == null) {
-                    OrderDTO order = new OrderDTO();
-                    order.setOrderLines(Collections.singletonList(orderLine));
-                    createTemporalOrder(order);
-                } else {
-                    temporalOrder.getOrderLines().add(orderLine);
-                    updateTemporalOrder(temporalOrder);
-                }
+                if(product.getStockAvailable() >= Integer.parseInt(productDetailInputStock.getText().toString())) {
+                    OrderLineDTO orderLine = new OrderLineDTO();
+                    orderLine.setQuantity(Integer.parseInt(productDetailInputStock.getText().toString()));
+                    orderLine.setProductId(product.getId());
+                    if (temporalOrder == null) {
+                        OrderDTO order = new OrderDTO();
+                        order.setOrderLines(Collections.singletonList(orderLine));
+                        createTemporalOrder(order);
+                    } else {
+                        temporalOrder.getOrderLines().add(orderLine);
+                        updateTemporalOrder(temporalOrder);
+                    }
+                } else
+                    Toast.makeText(getApplicationContext(), R.string.stringNoStockAvailable, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -222,11 +254,31 @@ public class ProductDetailsActivity extends AppCompatActivity {
                 startActivity(changeActivity);
             }
         });
+
+        fabDeleteProduct = findViewById(R.id.fabDeleteProduct);
+        fabDeleteProduct.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new AlertDialog.Builder(ProductDetailsActivity.this)
+                        .setTitle(R.string.stringTitleDeleteProduct)
+                        .setMessage(R.string.stringConfirmDeleteProduct)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                deleteProduct(getIntent().getStringExtra(Constants.PRODUCT_ID));
+                            }
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            }
+        });
     }
 
     protected void onStart() {
-        if (!app.isAdmin())
+        if (!app.isAdmin()) {
             fab.hide();
+            fabDeleteProduct.hide();
+        }
         super.onStart();
     }
 }

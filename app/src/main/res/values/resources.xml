@@ -6,4 +6,9 @@
         <item>Precio: menor a mayor</item>
         <item>Stock disponible</item>
     </string-array>
+    <string-array name="spinner_orders">
+        <item>Más reciente</item>
+        <item>Más antiguo</item>
+        <item>Importe total</item>
+    </string-array>
 </resources>

@@ -14,7 +14,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -32,6 +31,7 @@ import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
 import cz.msebera.android.httpclient.entity.mime.content.FileBody;
+import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
@@ -40,17 +40,48 @@ import spring.es.admintfg.R;
 import spring.es.admintfg.dto.UserDTO;
 
 public class EditProfileActivity extends AppCompatActivity {
-    //private ImageView editProfileImage;
+    private CircleImageView editProfileImage;
     private EditText editProfileName;
     private EditText editProfileSurname;
     private EditText editProfilePhone;
     private EditText editProfileEmail;
     private EditText editProfileAddress;
-    private ImageView editProfileImage;
     private MyApplication app;
     private File image;
     private String imageUrl;
     private ImageButton btnDeleteImage;
+
+    public void getUserDetails() {
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + app.getUserLogged().getId();
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
+                UserDTO user = gson.fromJson(new String(responseBody), UserDTO.class);
+                editProfileName.setText(user.getName());
+                editProfileSurname.setText(user.getSurname());
+                editProfilePhone.setText(user.getPhone());
+                editProfileEmail.setText(user.getEmail());
+                editProfileAddress.setText(user.getAddress());
+                if (user.getUserImage() != null) {
+                    GlideApp.with(getApplicationContext()).load(user.getUserImage()).into(editProfileImage);
+                    btnDeleteImage.setVisibility(View.VISIBLE);
+                } else
+                    btnDeleteImage.setVisibility(View.INVISIBLE);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
+                    startActivity(new Intent(EditProfileActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            }
+        });
+    }
 
     public void updateUserProfile() {
         AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
@@ -75,13 +106,16 @@ public class EditProfileActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 startActivity(new Intent(EditProfileActivity.this, MainActivity.class));
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringUserUpdated), Toast.LENGTH_LONG).show();
+                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(EditProfileActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -105,9 +139,11 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(EditProfileActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -119,28 +155,19 @@ public class EditProfileActivity extends AppCompatActivity {
 
         app = (MyApplication) this.getApplication();
 
+        editProfileImage = findViewById(R.id.profileImage);
         editProfileName = findViewById(R.id.editProfileName);
-        editProfileName.setText(app.getUserLogged().getName());
         editProfileSurname = findViewById(R.id.editProfileSurname);
-        editProfileSurname.setText(app.getUserLogged().getSurname());
         editProfilePhone = findViewById(R.id.editProfilePhone);
-        editProfilePhone.setText(app.getUserLogged().getPhone());
         editProfileEmail = findViewById(R.id.editProfileEmail);
-        editProfileEmail.setText(app.getUserLogged().getEmail());
         editProfileAddress = findViewById(R.id.editProfileAddress);
-        editProfileAddress.setText(app.getUserLogged().getAddress());
-        editProfileImage = findViewById(R.id.editProfileImage);
-        if (app.getUserLogged().getUserImage() != null) {
-            GlideApp.with(getApplicationContext()).load(app.getUserLogged().getUserImage()).dontAnimate().into(editProfileImage);
-        }
 
-        Toolbar editProductToolbar = findViewById(R.id.editProfileToolbar);
-        editProductToolbar.setTitle(getResources().getString(R.string.stringUpdateProfile));
-        editProductToolbar.setTitleMarginStart(100);
-        editProductToolbar.setTitleTextColor(Color.WHITE);
+        Toolbar editProfileToolbar = findViewById(R.id.editProfileToolbar);
+        editProfileToolbar.setTitle(getResources().getString(R.string.stringUpdateProfile));
+        editProfileToolbar.setTitleMarginStart(100);
+        editProfileToolbar.setTitleTextColor(Color.WHITE);
 
         Button btnImage = findViewById(R.id.btnImageEditProfile);
-
         btnImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,14 +180,12 @@ public class EditProfileActivity extends AppCompatActivity {
         });
 
         btnDeleteImage = findViewById(R.id.btnDeleteImageEditProfile);
-        if(app.getUserLogged().getUserImage() == null)
-            btnDeleteImage.setVisibility(View.INVISIBLE);
         btnDeleteImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imageUrl = null;
                 editProfileImage.setImageURI(null);
-                editProfileImage.setVisibility(View.INVISIBLE);
+                image = null;
+                imageUrl = null;
                 btnDeleteImage.setVisibility(View.INVISIBLE);
             }
         });
@@ -169,7 +194,7 @@ public class EditProfileActivity extends AppCompatActivity {
         editProfileBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(EditProfileActivity.this, MainActivity.class));
+                finish();
             }
         });
 
@@ -190,6 +215,8 @@ public class EditProfileActivity extends AppCompatActivity {
                 }
             }
         });
+
+        getUserDetails();
     }
 
     @Override
@@ -198,7 +225,6 @@ public class EditProfileActivity extends AppCompatActivity {
         if (resultCode == RESULT_OK) {
             Uri selectedImage = data.getData();
             editProfileImage.setImageURI(selectedImage);
-            editProfileImage.setVisibility(View.VISIBLE);
             btnDeleteImage.setVisibility(View.VISIBLE);
             String[] filePathColumn = {MediaStore.Images.Media.DATA};
             assert selectedImage != null;

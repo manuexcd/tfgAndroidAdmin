@@ -9,7 +9,6 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -23,6 +22,7 @@ import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
 import de.cketti.mailto.EmailIntentBuilder;
+import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.Constants;
 import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
@@ -33,7 +33,8 @@ import spring.es.admintfg.activity.LoginActivity;
 import spring.es.admintfg.dto.UserDTO;
 
 public class ProfileFragment extends Fragment {
-    private ImageView userDetailImage;
+    private CircleImageView userDetailImage;
+    private TextView userDetailName;
     private TextView userDetailPhone;
     private TextView userDetailEmail;
     private TextView userDetailAddress;
@@ -49,8 +50,9 @@ public class ProfileFragment extends Fragment {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
                 UserDTO user = gson.fromJson(new String(responseBody), UserDTO.class);
                 if (user.getUserImage() != null) {
-                    GlideApp.with(Objects.requireNonNull(getActivity()).getApplicationContext()).load(user.getUserImage()).dontAnimate().into(userDetailImage);
+                    GlideApp.with(Objects.requireNonNull(getContext())).load(user.getUserImage()).into(userDetailImage);
                 }
+                userDetailName.setText(user.getName().concat(" ").concat(user.getSurname()));
                 userDetailPhone.setText(user.getPhone());
                 userDetailEmail.setText(user.getEmail());
                 userDetailAddress.setText(user.getAddress());
@@ -58,10 +60,10 @@ public class ProfileFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -70,9 +72,10 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.activity_profile, container, false);
 
-        app = (MyApplication) Objects.requireNonNull(this.getActivity()).getApplication();
+        app = MyApplication.getInstance();
 
         userDetailImage = view.findViewById(R.id.userDetailImage);
+        userDetailName = view.findViewById(R.id.userDetailName);
         userDetailPhone = view.findViewById(R.id.userDetailPhone);
         ToggleButton btnUserDetailPhone = view.findViewById(R.id.btnUserDetailPhone);
         userDetailEmail = view.findViewById(R.id.userDetailEmail);
@@ -118,7 +121,6 @@ public class ProfileFragment extends Fragment {
                 startActivity(new Intent(v.getContext(), EditProfileActivity.class));
             }
         });
-
 
         return view;
     }

@@ -9,7 +9,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.helper.ItemTouchHelper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -28,7 +27,6 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Objects;
 
 import cz.msebera.android.httpclient.Header;
@@ -56,6 +54,7 @@ public class ProductsFragment extends Fragment {
     private int TOTAL_PAGES;
     private int currentPage = PAGE_START;
     private MyApplication app;
+    private String lastSearch;
 
     public void setProductsList(byte[] responseBody) {
         Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
@@ -64,11 +63,11 @@ public class ProductsFragment extends Fragment {
         TOTAL_PAGES = productsPage.getTotalPages();
         if (productsPage.getFirst())
             mAdapter.setProducts(productsArray);
-        else if (!isLastPage)
+        else
             mAdapter.getProducts().addAll(productsArray);
         mAdapter.notifyDataSetChanged();
         swipeRefreshLayout.setRefreshing(false);
-        editTextSearchProduct.setHint(String.valueOf(productsPage.getTotalElements()).concat(" productos."));
+        editTextSearchProduct.setHint(String.valueOf(productsPage.getTotalElements()).concat(" ").concat(Objects.requireNonNull(getActivity()).getResources().getString(R.string.stringProducts)));
         TOTAL_PAGES = productsPage.getTotalPages();
         isLoading = false;
         progressBar.setVisibility(View.GONE);
@@ -87,10 +86,10 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(),"ProductsFragment:" + statusCode, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -107,10 +106,10 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), "ProductsFragment:" + statusCode, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -127,32 +126,10 @@ public class ProductsFragment extends Fragment {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), "ProductsFragment:" + statusCode, Toast.LENGTH_LONG).show();
-            }
-        });
-    }
-
-    public void deleteProduct(Long id) {
-        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(Objects.requireNonNull(getActivity()).getApplicationContext());
-        String url = Constants.IP_ADDRESS + Constants.PATH_PRODUCTS + id;
-        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
-        client.delete(url, new AsyncHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Toast.makeText(getContext(), getResources().getString(R.string.stringProductDeleted), Toast.LENGTH_LONG).show();
-                getProducts(PAGE_START);
-            }
-
-            @Override
-            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if(statusCode == 500 && response.contains(Constants.EXPIRED))
-                    startActivity(new Intent(getActivity(), LoginActivity.class));
-                Toast.makeText(getContext(), getResources().getString(R.string.stringErrorProductDeleted), Toast.LENGTH_LONG).show();
-                //getProducts(PAGE_START);
+                    Toast.makeText(getContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -184,6 +161,7 @@ public class ProductsFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!s.toString().equals(Constants.EMPTY_STRING)) {
                     getProductsByParam(s.toString(), PAGE_START);
+                    lastSearch = Constants.LAST_SEARCH_PARAM;
                 } else {
                     getProducts(PAGE_START);
                 }
@@ -203,14 +181,23 @@ public class ProductsFragment extends Fragment {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                if (position == 0)
+                if (position == 0) {
                     getProductsOrderBy(Constants.ORDER_NAME, PAGE_START);
-                else if (position == 1)
+                    lastSearch = Constants.LAST_SEARCH_ORDER_NAME;
+                    currentPage = PAGE_START;
+                } else if (position == 1) {
                     getProductsOrderBy(Constants.ORDER_PRICE_DESC, PAGE_START);
-                else if (position == 2)
+                    lastSearch = Constants.LAST_SEARCH_ORDER_PRICE_DESC;
+                    currentPage = PAGE_START;
+                } else if (position == 2) {
                     getProductsOrderBy(Constants.ORDER_PRICE_ASC, PAGE_START);
-                else if (position == 3)
+                    lastSearch = Constants.LAST_SEARCH_ORDER_PRICE_ASC;
+                    currentPage = PAGE_START;
+                } else if (position == 3) {
                     getProductsOrderBy(Constants.ORDER_STOCK, PAGE_START);
+                    lastSearch = Constants.LAST_SEARCH_ORDER_STOCK;
+                    currentPage = PAGE_START;
+                }
             }
 
             @Override
@@ -228,7 +215,20 @@ public class ProductsFragment extends Fragment {
             protected void loadMoreItems() {
                 isLoading = true;
                 currentPage += 1;
-                getProducts(currentPage);
+                switch (lastSearch) {
+                    case Constants.LAST_SEARCH_ORDER_PRICE_ASC:
+                        getProductsOrderBy(Constants.LAST_SEARCH_ORDER_PRICE_ASC, currentPage);
+                        break;
+                    case Constants.LAST_SEARCH_ORDER_PRICE_DESC:
+                        getProductsOrderBy(Constants.LAST_SEARCH_ORDER_PRICE_DESC, currentPage);
+                        break;
+                    case Constants.LAST_SEARCH_ORDER_STOCK:
+                        getProductsOrderBy(Constants.LAST_SEARCH_ORDER_STOCK, currentPage);
+                        break;
+                    default:
+                        getProducts(currentPage);
+                        break;
+                }
             }
 
             @Override
@@ -248,7 +248,6 @@ public class ProductsFragment extends Fragment {
         });
 
         swipeRefreshLayout = view.findViewById(R.id.swipeRefreshProducts);
-
         swipeRefreshLayout.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override

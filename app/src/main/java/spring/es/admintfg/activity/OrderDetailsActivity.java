@@ -19,6 +19,7 @@ import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
 
 import java.nio.charset.StandardCharsets;
+import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 
@@ -32,6 +33,7 @@ import spring.es.admintfg.R;
 import spring.es.admintfg.adapter.OrderLinesAdapter;
 import spring.es.admintfg.dto.OrderDTO;
 import spring.es.admintfg.dto.OrderLineDTO;
+import spring.es.admintfg.dto.UserDTO;
 
 public class OrderDetailsActivity extends AppCompatActivity {
     private static ArrayList<OrderLineDTO> orderLinesArray;
@@ -39,11 +41,13 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private TextView orderDetailId;
     private TextView orderDetailDate;
     private TextView orderDetailPrice;
+    private TextView orderDetailUser;
     private Button btnOrderInProgress;
     private Button btnOrderInDelivery;
     private Button btnOrderBuy;
     private Button btnOrderCancel;
     private OrderDTO order;
+    private UserDTO user;
     private MyApplication app;
 
     public void getOrderDetails() {
@@ -56,9 +60,10 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 Gson gson = new GsonBuilder().setDateFormat(Constants.DATETIME_FORMAT).create();
                 order = gson.fromJson(new String(responseBody), OrderDTO.class);
                 orderDetailId.setText(String.valueOf(order.getId()));
-                orderDetailDate.setText(String.valueOf(order.getDate()));
-                orderDetailPrice.setText(String.valueOf(new DecimalFormat("#.##").format(order.getTotalPrice())).concat(" ").concat(Constants.EURO));
+                orderDetailDate.setText(DateFormat.getDateInstance().format(order.getDate()));
+                orderDetailPrice.setText(String.valueOf(new DecimalFormat("#.##").format(order.getTotalPrice())).concat(Constants.EURO));
                 orderLinesArray = new ArrayList<>(order.getOrderLines());
+                getUserDetails(order.getUserId());
 
                 if (!app.isAdmin()) {
                     btnOrderInProgress.setVisibility(View.INVISIBLE);
@@ -105,9 +110,11 @@ public class OrderDetailsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -125,14 +132,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringOrderConfirmed), Toast.LENGTH_LONG).show();
                 startActivity(new Intent(OrderDetailsActivity.this, MainActivity.class));
+                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -150,14 +159,16 @@ public class OrderDetailsActivity extends AppCompatActivity {
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringOrderStatusUpdated), Toast.LENGTH_LONG).show();
                 startActivity(new Intent(OrderDetailsActivity.this, MainActivity.class));
+                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains("expired"))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -170,8 +181,32 @@ public class OrderDetailsActivity extends AppCompatActivity {
         client.put(url, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
-                Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringOrderCancelled), Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringConfirmOrderCancelled), Toast.LENGTH_LONG).show();
                 startActivity(new Intent(OrderDetailsActivity.this, MainActivity.class));
+                finish();
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
+                    startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
+            }
+        });
+    }
+
+    public void getUserDetails(long userId) {
+        AsyncHttpClient client = MyAsyncHttpClient.getAsyncHttpClient(getApplicationContext());
+        String url = Constants.IP_ADDRESS + Constants.PATH_USERS + userId;
+        client.addHeader(Constants.HEADER_AUTHORIZATION, app.getToken());
+        client.get(url, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                Gson gson = new GsonBuilder().setDateFormat(Constants.DATE_FORMAT).create();
+                user = gson.fromJson(new String(responseBody), UserDTO.class);
+                orderDetailUser.setText(user.getName().concat(" ").concat(user.getSurname()));
             }
 
             @Override
@@ -179,7 +214,6 @@ public class OrderDetailsActivity extends AppCompatActivity {
                 String response = new String(responseBody);
                 if (statusCode == 500 && response.contains("expired"))
                     startActivity(new Intent(OrderDetailsActivity.this, LoginActivity.class));
-                Toast.makeText(getApplicationContext(), String.valueOf(statusCode), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -200,14 +234,14 @@ public class OrderDetailsActivity extends AppCompatActivity {
         productDetailBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent changeActivity = new Intent(OrderDetailsActivity.this, MainActivity.class);
-                startActivity(changeActivity);
+                finish();
             }
         });
 
         orderDetailId = findViewById(R.id.orderDetailId);
         orderDetailDate = findViewById(R.id.orderDetailDate);
         orderDetailPrice = findViewById(R.id.orderDetailPrice);
+        orderDetailUser = findViewById(R.id.orderDetailUser);
 
         RecyclerView orderLinesRecyclerView = findViewById(R.id.orderLinesRecyclerView);
         orderLinesRecyclerView.setLayoutManager(new LinearLayoutManager(this));

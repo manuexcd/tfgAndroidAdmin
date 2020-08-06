@@ -7,6 +7,7 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -14,7 +15,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -32,7 +32,9 @@ import cz.msebera.android.httpclient.entity.ContentType;
 import cz.msebera.android.httpclient.entity.StringEntity;
 import cz.msebera.android.httpclient.entity.mime.MultipartEntityBuilder;
 import cz.msebera.android.httpclient.entity.mime.content.FileBody;
+import de.hdodenhof.circleimageview.CircleImageView;
 import spring.es.admintfg.Constants;
+import spring.es.admintfg.GlideApp;
 import spring.es.admintfg.MyApplication;
 import spring.es.admintfg.MyAsyncHttpClient;
 import spring.es.admintfg.R;
@@ -43,7 +45,7 @@ public class NewProductActivity extends AppCompatActivity {
     private EditText newProductDescription;
     private EditText newProductPrice;
     private EditText newProductStock;
-    private ImageView newProductImage;
+    private CircleImageView newProductImage;
     private File image;
     private String imageCreated;
     private ImageButton btnDeleteImage;
@@ -74,13 +76,16 @@ public class NewProductActivity extends AppCompatActivity {
                 changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
                 startActivity(changeActivity);
                 Toast.makeText(getApplicationContext(), getResources().getString(R.string.stringProductAdded), Toast.LENGTH_LONG).show();
+                finish();
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(NewProductActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -104,9 +109,11 @@ public class NewProductActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-                String response = new String(responseBody);
-                if (statusCode == 500 && response.contains(Constants.EXPIRED))
+                if (statusCode == 500 && new String(responseBody).contains(Constants.EXPIRED)) {
                     startActivity(new Intent(NewProductActivity.this, LoginActivity.class));
+                    Toast.makeText(getApplicationContext(), R.string.stringTokenExpired, Toast.LENGTH_LONG).show();
+                    finish();
+                }
             }
         });
     }
@@ -127,10 +134,7 @@ public class NewProductActivity extends AppCompatActivity {
         newProductBackBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent changeActivity = new Intent(NewProductActivity.this, MainActivity.class);
-                changeActivity.putExtra(Constants.PRODUCT_ID, getIntent().getStringExtra(Constants.PRODUCT_ID));
-                changeActivity.putExtra(Constants.TOKEN, getIntent().getStringExtra(Constants.TOKEN));
-                startActivity(changeActivity);
+                finish();
             }
         });
 
@@ -139,7 +143,7 @@ public class NewProductActivity extends AppCompatActivity {
         newProductPrice = findViewById(R.id.newProductPrice);
         newProductStock = findViewById(R.id.newProductStock);
         newProductImage = findViewById(R.id.newProductImage);
-        Button btnSaveNewProduct = findViewById(R.id.btnSaveNewProduct);
+        FloatingActionButton btnSaveNewProduct = findViewById(R.id.btnSaveNewProduct);
 
         btnSaveNewProduct.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -176,6 +180,7 @@ public class NewProductActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 newProductImage.setImageURI(null);
+                GlideApp.with(getApplicationContext()).load("").into(newProductImage);
                 btnDeleteImage.setVisibility(View.INVISIBLE);
             }
         });

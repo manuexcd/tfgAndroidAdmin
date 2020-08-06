@@ -41,39 +41,56 @@
                 app:srcCompat="?attr/homeAsUpIndicator" />
 
             <TextView
-                android:id="@+id/orderDetailId"
+                android:id="@+id/orderLineProductHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:text="@string/stringProduct"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.15"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/orderDetailsToolbar" />
 
             <TextView
-                android:id="@+id/orderDetailDate"
+                android:id="@+id/orderLineProductQuantityHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="64dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/orderDetailId"
+                android:text="@string/stringQuantity"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.25"
+                app:layout_constraintStart_toEndOf="@+id/orderLineProductHeader"
                 app:layout_constraintTop_toBottomOf="@+id/orderDetailsToolbar" />
 
             <TextView
-                android:id="@+id/orderDetailUser"
+                android:id="@+id/orderLineProductPriceHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="64dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                app:layout_constraintStart_toEndOf="@+id/orderDetailDate"
+                android:text="@string/stringRecommendedPrice"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.1"
+                app:layout_constraintStart_toEndOf="@+id/orderLineProductQuantityHeader"
                 app:layout_constraintTop_toBottomOf="@+id/orderDetailsToolbar" />
 
             <TextView
-                android:id="@+id/orderDetailPrice"
+                android:id="@+id/orderLinePriceHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
+                android:text="@string/stringPrice"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/orderLineProductPriceHeader"
                 app:layout_constraintTop_toBottomOf="@+id/orderDetailsToolbar" />
 
             <android.support.v7.widget.RecyclerView
@@ -81,12 +98,119 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:scrollbars="vertical"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/orderDetailDate" />
+                app:layout_constraintTop_toBottomOf="@+id/orderLineProductHeader"/>
+
+            <TextView
+                android:id="@+id/orderDetailIdHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/stringID"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+
+            <TextView
+                android:id="@+id/orderDetailDateHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/stringDate"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.25"
+                app:layout_constraintStart_toEndOf="@+id/orderDetailIdHeader"
+                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+
+            <TextView
+                android:id="@+id/orderDetailUserHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@string/stringUserPlaceholder"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/orderDetailDateHeader"
+                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+
+            <TextView
+                android:id="@+id/orderDetailPriceHeader"
+                style="@style/TextAppearance.AppCompat.Subhead"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/stringTotalPrice"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/orderDetailUserHeader"
+                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+
+            <TextView
+                android:id="@+id/orderDetailId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/secondaryText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailIdHeader"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/orderDetailDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/secondaryText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.25"
+                app:layout_constraintStart_toEndOf="@+id/orderDetailId"
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailIdHeader"
+                app:layout_constraintVertical_bias="0.0"/>
+
+            <TextView
+                android:id="@+id/orderDetailUser"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:textColor="@color/secondaryText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/orderDetailDate"
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailIdHeader"
+                app:layout_constraintVertical_bias="0.0" />
+
+            <TextView
+                android:id="@+id/orderDetailPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/secondaryText"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/orderDetailUser"
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailIdHeader"
+                app:layout_constraintVertical_bias="0.0" />
 
             <Button
                 android:id="@+id/btnOrderInProgress"
@@ -97,9 +221,8 @@
                 android:layout_marginBottom="8dp"
                 android:background="@color/colorPrimaryLight"
                 android:text="@string/stringOrderInProgress"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailId" />
 
             <Button
                 android:id="@+id/btnOrderInDelivery"
@@ -110,9 +233,8 @@
                 android:layout_marginBottom="8dp"
                 android:background="@color/colorPrimaryLight"
                 android:text="@string/stringOrderInDelivery"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnOrderInProgress"
-                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailId" />
 
             <Button
                 android:id="@+id/btnOrderBuy"
@@ -123,9 +245,8 @@
                 android:layout_marginBottom="8dp"
                 android:background="@color/colorPrimaryLight"
                 android:text="@string/stringOrderBuy"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnOrderInDelivery"
-                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailId" />
 
             <Button
                 android:id="@+id/btnOrderCancel"
@@ -137,10 +258,9 @@
                 android:layout_marginBottom="8dp"
                 android:background="@color/colorPrimaryLight"
                 android:text="@string/stringOrderCancel"
-                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/btnOrderBuy"
-                app:layout_constraintTop_toBottomOf="@+id/orderLinesRecyclerView" />
+                app:layout_constraintTop_toBottomOf="@+id/orderDetailId" />
 
         </android.support.constraint.ConstraintLayout>
     </ScrollView>

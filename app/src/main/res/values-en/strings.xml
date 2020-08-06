@@ -25,11 +25,9 @@
     <string name="stringNoStock">No stock</string>
     <string name="stringOrderBuy">Buy</string>
     <string name="stringOrderCancel">Cancel</string>
-    <string name="stringOrderCancelled">Order cancelled successfully</string>
+    <string name="stringConfirmOrderCancelled">Order cancelled successfully</string>
     <string name="stringOrderConfirmed">Order confirmed successfully</string>
     <string name="stringOrderDetails">Order details</string>
-    <string name="stringOrderInDelivery">In delivery</string>
-    <string name="stringOrderInProgress">In progress</string>
     <string name="stringOrderStatusUpdated">Order status updated successfully</string>
     <string name="stringOrders">Orders</string>
     <string name="stringPasswordPlaceholder">Password</string>
@@ -40,7 +38,7 @@
     <string name="stringRememberUsername">Remember user</string>
     <string name="stringSave">Save</string>
     <string name="stringSettings">Config</string>
-    <string name="stringStock">Stock available</string>
+    <string name="stringStock">Available</string>
     <string name="stringUserPlaceholder">User</string>
     <string name="stringUsers">Users</string>
     <string name="stringImage">Image</string>
@@ -60,4 +58,19 @@
     <string name="stringProductUpdated">Product updated successfully</string>
     <string name="stringErrorProductUpdated">Product can not be updated</string>
     <string name="stringUpdateProduct">Update product</string>
+    <string name="stringProduct">Product</string>
+    <string name="stringQuantity">Quantity</string>
+    <string name="stringPrice">Price</string>
+    <string name="stringTotalPrice">Total</string>
+    <string name="stringDate">Date</string>
+    <string name="stringTitleDeleteProduct">Delete product</string>
+    <string name="stringConfirmDeleteProduct">Are you sure you want to delete the product?</string>
+    <string name="stringOrderTemporal" />
+    <string name="stringOrderReceived">Received</string>
+    <string name="stringOrderInDelivery">In delivery</string>
+    <string name="stringOrderInProgress">In progress</string>
+    <string name="stringOrderCancelled">Cancelled</string>
+    <string name="stringOrderDelivered">Delivered</string>
+    <string name="stringTokenExpired">Session expired</string>
+    <string name="stringNoStockAvailable">Not enough stock available</string>
 </resources>
